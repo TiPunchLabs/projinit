@@ -1,0 +1,18 @@
+# Configuration projinit
+# Copiez ce fichier vers config.yaml ou ~/.config/projinit/config.yaml
+
+# Propriétaires GitHub disponibles
+# Le premier de la liste sera la valeur par défaut
+owners:
+  - name: "mon-user"
+    label: "mon-user (personnel)"
+  - name: "mon-org"
+    label: "mon-org (organisation)"
+
+# Chemin du secret dans pass (pour l'option direnv)
+pass_secret_path: "github/terraform-token"
+
+# Valeurs par défaut
+defaults:
+  visibility: "public"    # public ou private
+  use_direnv: false       # activer direnv + pass par défaut

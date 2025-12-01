@@ -1,0 +1,54 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Infrastructure
+
+Ce projet utilise Terraform pour gérer le dépôt GitHub.
+
+### Prérequis
+
+- [Terraform](https://www.terraform.io/) >= 1.0
+- Un token GitHub avec les permissions nécessaires
+{% if use_direnv %}
+- [direnv](https://direnv.net/) pour la gestion des variables d'environnement
+- [pass](https://www.passwordstore.org/) pour le stockage sécurisé du token
+{% endif %}
+
+### Configuration
+
+{% if use_direnv %}
+1. Autoriser direnv :
+   ```bash
+   direnv allow
+   ```
+
+2. Initialiser Terraform :
+   ```bash
+   cd terraform
+   terraform init
+   ```
+{% else %}
+1. Configurer le token GitHub :
+   ```bash
+   export GITHUB_TOKEN=<votre-token>
+   ```
+
+2. Initialiser Terraform :
+   ```bash
+   cd terraform
+   terraform init
+   ```
+{% endif %}
+
+### Déploiement
+
+```bash
+cd terraform
+terraform plan
+terraform apply
+```
+
+## Licence
+
+MIT

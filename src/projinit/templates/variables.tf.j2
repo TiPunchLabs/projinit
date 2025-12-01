@@ -1,0 +1,28 @@
+variable "github_owner" {
+  description = "Propriétaire du dépôt GitHub (utilisateur ou organisation)"
+  type        = string
+  default     = "{{ owner }}"
+}
+
+variable "repository_name" {
+  description = "Nom du dépôt GitHub"
+  type        = string
+  default     = "{{ project_name }}"
+}
+
+variable "repository_description" {
+  description = "Description du dépôt GitHub"
+  type        = string
+  default     = "{{ description }}"
+}
+
+variable "repository_visibility" {
+  description = "Visibilité du dépôt (public ou private)"
+  type        = string
+  default     = "{{ visibility }}"
+
+  validation {
+    condition     = contains(["public", "private"], var.repository_visibility)
+    error_message = "La visibilité doit être 'public' ou 'private'."
+  }
+}

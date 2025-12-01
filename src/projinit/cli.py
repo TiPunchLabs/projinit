@@ -1,0 +1,192 @@
+"""Logique interactive CLI."""
+
+import sys
+from pathlib import Path
+
+import questionary
+from rich.console import Console
+from rich.panel import Panel
+
+from projinit import __version__
+from projinit.checks import check_directory_not_exists, run_direnv_checks
+from projinit.config import Config, load_config
+from projinit.generator import ProjectConfig, generate_project, init_git_repository
+from projinit.validators import validate_slug
+
+console = Console()
+
+
+def display_header() -> None:
+    """Affiche l'en-tête du CLI."""
+    console.print()
+    console.print(
+        Panel.fit(
+            f"[bold]projinit[/bold] [dim]v{__version__}[/dim]\n"
+            "[dim]Générateur de projet avec Terraform GitHub[/dim]",
+            border_style="blue",
+        )
+    )
+    console.print()
+
+
+def ask_project_name() -> str | None:
+    """Demande le nom du projet."""
+    return questionary.text(
+        "Nom du projet :",
+        validate=lambda val: validate_slug(val) if isinstance(validate_slug(val), bool) else validate_slug(val),
+    ).ask()
+
+
+def ask_description(project_name: str) -> str:
+    """Demande la description du projet."""
+    description = questionary.text(
+        "Description :",
+        default="",
+    ).ask()
+
+    if description is None:
+        return ""
+
+    return description if description.strip() else f"Projet {project_name}"
+
+
+def ask_owner(config: Config) -> str | None:
+    """Demande le propriétaire GitHub."""
+    choices = [
+        questionary.Choice(owner.label, value=owner.name)
+        for owner in config.owners
+    ]
+
+    if not choices:
+        console.print("[red]Aucun owner configuré[/red]")
+        return None
+
+    return questionary.select(
+        "Owner GitHub :",
+        choices=choices,
+        default=config.owners[0].name if config.owners else None,
+    ).ask()
+
+
+def ask_visibility(config: Config) -> str | None:
+    """Demande la visibilité du dépôt."""
+    return questionary.select(
+        "Visibilité :",
+        choices=[
+            questionary.Choice("public", value="public"),
+            questionary.Choice("private", value="private"),
+        ],
+        default=config.defaults.visibility,
+    ).ask()
+
+
+def ask_direnv(config: Config) -> bool | None:
+    """Demande si direnv doit être activé."""
+    return questionary.confirm(
+        "Activer direnv + pass ?",
+        default=config.defaults.use_direnv,
+    ).ask()
+
+
+def display_summary(project_config: ProjectConfig) -> None:
+    """Affiche le récapitulatif de la configuration."""
+    console.print()
+    console.print("[bold]Récapitulatif :[/bold]")
+    console.print(f"  Nom        : [cyan]{project_config.name}[/cyan]")
+    console.print(f"  Description: [cyan]{project_config.description}[/cyan]")
+    console.print(f"  Owner      : [cyan]{project_config.owner}[/cyan]")
+    console.print(f"  Visibilité : [cyan]{project_config.visibility}[/cyan]")
+    console.print(f"  Direnv     : [cyan]{'oui' if project_config.use_direnv else 'non'}[/cyan]")
+    console.print()
+
+
+def display_next_steps(project_name: str, use_direnv: bool) -> None:
+    """Affiche les prochaines étapes."""
+    console.print()
+    console.print("[bold]Prochaines étapes :[/bold]")
+    console.print()
+    console.print(f"  [dim]1.[/dim] cd {project_name}")
+    if use_direnv:
+        console.print("  [dim]2.[/dim] direnv allow")
+        console.print("  [dim]3.[/dim] cd terraform && terraform init")
+        console.print("  [dim]4.[/dim] terraform plan")
+        console.print("  [dim]5.[/dim] terraform apply")
+    else:
+        console.print("  [dim]2.[/dim] export GITHUB_TOKEN=<votre-token>")
+        console.print("  [dim]3.[/dim] cd terraform && terraform init")
+        console.print("  [dim]4.[/dim] terraform plan")
+        console.print("  [dim]5.[/dim] terraform apply")
+    console.print()
+
+
+def main() -> None:
+    """Point d'entrée principal du CLI."""
+    # Charger la configuration
+    config = load_config()
+
+    display_header()
+
+    # Questions interactives
+    project_name = ask_project_name()
+    if project_name is None:
+        console.print("[dim]Annulé[/dim]")
+        sys.exit(1)
+
+    description = ask_description(project_name)
+
+    owner = ask_owner(config)
+    if owner is None:
+        console.print("[dim]Annulé[/dim]")
+        sys.exit(1)
+
+    visibility = ask_visibility(config)
+    if visibility is None:
+        console.print("[dim]Annulé[/dim]")
+        sys.exit(1)
+
+    use_direnv = ask_direnv(config)
+    if use_direnv is None:
+        console.print("[dim]Annulé[/dim]")
+        sys.exit(1)
+
+    # Vérifications
+    target_dir = Path.cwd() / project_name
+
+    if not check_directory_not_exists(target_dir):
+        sys.exit(1)
+
+    if use_direnv and not run_direnv_checks(config.pass_secret_path):
+        sys.exit(1)
+
+    # Créer la configuration du projet
+    project_config = ProjectConfig(
+        name=project_name,
+        description=description,
+        owner=owner,
+        visibility=visibility,
+        use_direnv=use_direnv,
+        pass_secret_path=config.pass_secret_path,
+    )
+
+    display_summary(project_config)
+
+    # Confirmation
+    confirm = questionary.confirm("Générer le projet ?", default=True).ask()
+    if not confirm:
+        console.print("[dim]Annulé[/dim]")
+        sys.exit(1)
+
+    # Génération
+    console.print()
+    with console.status("[bold blue]Génération du projet...[/bold blue]"):
+        if not generate_project(project_config, target_dir):
+            console.print("[red]Erreur lors de la génération du projet[/red]")
+            sys.exit(1)
+
+        if not init_git_repository(target_dir):
+            console.print("[red]Erreur lors de l'initialisation git[/red]")
+            sys.exit(1)
+
+    console.print(f"[green]Projet '{project_name}' créé avec succès[/green]")
+
+    display_next_steps(project_name, use_direnv)
