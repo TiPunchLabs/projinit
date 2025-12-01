@@ -1,2 +1,3 @@
-# Chargement du token GitHub depuis pass
-export GITHUB_TOKEN=$(pass {{ pass_secret_path }})
+# Variables Terraform
+export TF_VAR_github_token=$(pass {{ pass_secret_path }})
+export TF_VAR_github_owner="{{ owner }}"

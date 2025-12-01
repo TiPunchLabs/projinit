@@ -1,6 +1,6 @@
 # Variables du projet {{ project_name }}
 
-github_owner           = "{{ owner }}"
-repository_name        = "{{ project_name }}"
-repository_description = "{{ description }}"
-repository_visibility  = "{{ visibility }}"
+github_owner           = "{{ owner | hcl_escape }}"
+repository_name        = "{{ project_name | hcl_escape }}"
+repository_description = "{{ description | hcl_escape }}"
+repository_visibility  = "{{ visibility | hcl_escape }}"

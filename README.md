@@ -12,6 +12,8 @@
 
 > 🏗️ CLI pour générer la structure d'un projet avec configuration [Terraform](https://www.terraform.io/) + [GitHub](https://github.com/).
 
+> 🐧 **Linux first** — Conçu pour les environnements Linux. Peut fonctionner sur macOS, non testé sur Windows.
+
 ## 🔗 Technologies
 
 | Outil | Description |
@@ -24,24 +26,78 @@
 
 ## 📦 Installation
 
+### Depuis les sources
+
 ```bash
-# Avec uv (recommandé)
-uv tool install projinit
+# Cloner le dépôt
+git clone https://github.com/xgueret/projinit.git
+cd projinit
 
-# Ou exécution directe
-uvx projinit
+# Installer les dépendances
+uv sync
 
-# Ou installation classique
-pip install projinit
+# Copier et personnaliser la configuration
+cp config.example.yaml ~/.config/projinit/config.yaml
+```
+
+### Installation globale (recommandé)
+
+```bash
+# Installer comme outil global
+uv tool install /chemin/vers/projinit
+
+# Ou directement depuis GitHub
+uv tool install git+https://github.com/xgueret/projinit.git
+
+# Configurer (obligatoire)
+mkdir -p ~/.config/projinit
+curl -o ~/.config/projinit/config.yaml https://raw.githubusercontent.com/xgueret/projinit/main/config.example.yaml
+# Puis éditer ~/.config/projinit/config.yaml avec vos owners
+```
+
+> ⚠️ **Important** : Sans fichier de configuration, le CLI utilisera des valeurs par défaut génériques.
+
+### 🔄 Mise à jour
+
+```bash
+# Si installé depuis les sources
+cd /chemin/vers/projinit
+git pull
+uv sync
+
+# Si installé globalement depuis un dossier local
+uv tool upgrade projinit
+
+# Si installé depuis GitHub
+uv tool upgrade projinit --reinstall
 ```
 
 > 💡 [uv](https://docs.astral.sh/uv/) est le gestionnaire de packages Python recommandé pour sa rapidité.
 
 ## 🚀 Utilisation
 
+> ⚠️ **Important** : Positionnez-vous dans le dossier où vous souhaitez générer le projet avant de lancer la commande.
+
 ```bash
+# Se placer dans le dossier cible
+cd ~/mes-projets
+
+# Si installé globalement
 projinit
+
+# Depuis le dossier du projet projinit (après uv sync)
+uv run projinit
+
+# Depuis n'importe où (sans installation globale)
+uv run --project /chemin/vers/projinit projinit
 ```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `-v`, `--version` | Affiche la version |
+| `-h`, `--help` | Affiche l'aide |
 
 L'outil pose les questions suivantes de manière interactive :
 
@@ -119,18 +175,16 @@ Si vous activez l'option direnv + pass :
 ## 🛠️ Développement
 
 ```bash
-# Cloner le projet
+# Cloner et installer (voir section Installation)
 git clone https://github.com/xgueret/projinit.git
 cd projinit
-
-# Copier la configuration exemple
-cp config.example.yaml config.yaml
-
-# Installer en mode développement
 uv sync
 
-# Exécuter
+# Exécuter en développement
 uv run projinit
+
+# Lancer les tests (à venir)
+uv run pytest
 ```
 
 ## 📄 Licence

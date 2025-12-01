@@ -1,5 +1,6 @@
 """Logique interactive CLI."""
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -10,10 +11,24 @@ from rich.panel import Panel
 from projinit import __version__
 from projinit.checks import check_directory_not_exists, run_direnv_checks
 from projinit.config import Config, load_config
-from projinit.generator import ProjectConfig, generate_project, init_git_repository
+from projinit.generator import ProjectConfig, allow_direnv, generate_project, init_git_repository
 from projinit.validators import validate_slug
 
 console = Console()
+
+
+def parse_args() -> argparse.Namespace:
+    """Parse les arguments de la ligne de commande."""
+    parser = argparse.ArgumentParser(
+        prog="projinit",
+        description="CLI pour générer la structure d'un projet avec configuration Terraform GitHub",
+    )
+    parser.add_argument(
+        "-v", "--version",
+        action="version",
+        version=f"projinit {__version__}",
+    )
+    return parser.parse_args()
 
 
 def display_header() -> None:
@@ -107,12 +122,11 @@ def display_next_steps(project_name: str, use_direnv: bool) -> None:
     console.print()
     console.print(f"  [dim]1.[/dim] cd {project_name}")
     if use_direnv:
-        console.print("  [dim]2.[/dim] direnv allow")
-        console.print("  [dim]3.[/dim] cd terraform && terraform init")
-        console.print("  [dim]4.[/dim] terraform plan")
-        console.print("  [dim]5.[/dim] terraform apply")
+        console.print("  [dim]2.[/dim] cd terraform && terraform init")
+        console.print("  [dim]3.[/dim] terraform plan")
+        console.print("  [dim]4.[/dim] terraform apply")
     else:
-        console.print("  [dim]2.[/dim] export GITHUB_TOKEN=<votre-token>")
+        console.print("  [dim]2.[/dim] export TF_VAR_github_token=<votre-token>")
         console.print("  [dim]3.[/dim] cd terraform && terraform init")
         console.print("  [dim]4.[/dim] terraform plan")
         console.print("  [dim]5.[/dim] terraform apply")
@@ -121,6 +135,9 @@ def display_next_steps(project_name: str, use_direnv: bool) -> None:
 
 def main() -> None:
     """Point d'entrée principal du CLI."""
+    # Parser les arguments (gère --version automatiquement)
+    parse_args()
+
     # Charger la configuration
     config = load_config()
 
@@ -185,6 +202,10 @@ def main() -> None:
 
         if not init_git_repository(target_dir):
             console.print("[red]Erreur lors de l'initialisation git[/red]")
+            sys.exit(1)
+
+        if use_direnv and not allow_direnv(target_dir):
+            console.print("[red]Erreur lors de l'autorisation direnv[/red]")
             sys.exit(1)
 
     console.print(f"[green]Projet '{project_name}' créé avec succès[/green]")

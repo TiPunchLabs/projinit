@@ -1,25 +1,31 @@
+variable "github_token" {
+  description = "Token d'accès personnel GitHub"
+  type        = string
+  sensitive   = true
+}
+
 variable "github_owner" {
   description = "Propriétaire du dépôt GitHub (utilisateur ou organisation)"
   type        = string
-  default     = "{{ owner }}"
+  default     = "{{ owner | hcl_escape }}"
 }
 
 variable "repository_name" {
   description = "Nom du dépôt GitHub"
   type        = string
-  default     = "{{ project_name }}"
+  default     = "{{ project_name | hcl_escape }}"
 }
 
 variable "repository_description" {
   description = "Description du dépôt GitHub"
   type        = string
-  default     = "{{ description }}"
+  default     = "{{ description | hcl_escape }}"
 }
 
 variable "repository_visibility" {
   description = "Visibilité du dépôt (public ou private)"
   type        = string
-  default     = "{{ visibility }}"
+  default     = "{{ visibility | hcl_escape }}"
 
   validation {
     condition     = contains(["public", "private"], var.repository_visibility)

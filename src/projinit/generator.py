@@ -22,12 +22,26 @@ class ProjectConfig:
     pass_secret_path: str = "github/terraform-token"
 
 
+def hcl_escape(value: str) -> str:
+    """Échappe une chaîne pour Terraform/HCL."""
+    return (
+        value
+        .replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", " ")
+        .replace("\r", "")
+    )
+
+
 def get_template_env() -> Environment:
     """Retourne l'environnement Jinja2 avec les templates."""
-    return Environment(
+    env = Environment(
         loader=PackageLoader("projinit", "templates"),
         keep_trailing_newline=True,
     )
+    # Filtres personnalisés
+    env.filters["hcl_escape"] = hcl_escape
+    return env
 
 
 def generate_project(config: ProjectConfig, target_dir: Path) -> bool:
@@ -113,4 +127,19 @@ def init_git_repository(target_dir: Path) -> bool:
         return True
     except subprocess.CalledProcessError as e:
         console.print(f"[red]Erreur lors de l'initialisation git : {e}[/red]")
+        return False
+
+
+def allow_direnv(target_dir: Path) -> bool:
+    """Autorise direnv pour le projet généré."""
+    try:
+        subprocess.run(
+            ["direnv", "allow"],
+            cwd=target_dir,
+            capture_output=True,
+            check=True,
+        )
+        return True
+    except subprocess.CalledProcessError as e:
+        console.print(f"[red]Erreur lors de l'autorisation direnv : {e}[/red]")
         return False

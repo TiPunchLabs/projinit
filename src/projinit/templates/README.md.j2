@@ -18,12 +18,7 @@ Ce projet utilise Terraform pour gérer le dépôt GitHub.
 ### Configuration
 
 {% if use_direnv %}
-1. Autoriser direnv :
-   ```bash
-   direnv allow
-   ```
-
-2. Initialiser Terraform :
+1. Initialiser Terraform :
    ```bash
    cd terraform
    terraform init
@@ -31,7 +26,7 @@ Ce projet utilise Terraform pour gérer le dépôt GitHub.
 {% else %}
 1. Configurer le token GitHub :
    ```bash
-   export GITHUB_TOKEN=<votre-token>
+   export TF_VAR_github_token=<votre-token>
    ```
 
 2. Initialiser Terraform :
