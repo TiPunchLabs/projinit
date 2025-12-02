@@ -13,6 +13,7 @@ from projinit.checks import check_directory_not_exists, run_direnv_checks
 from projinit.config import Config, load_config
 from projinit.generator import ProjectConfig, allow_direnv, generate_project, init_git_repository
 from projinit.validators import validate_slug
+from projinit.version import display_version_banner
 
 console = Console()
 
@@ -28,6 +29,10 @@ def parse_args() -> argparse.Namespace:
         action="version",
         version=f"projinit {__version__}",
     )
+
+    subparsers = parser.add_subparsers(dest="command")
+    subparsers.add_parser("version", help="Affiche les informations de version détaillées")
+
     return parser.parse_args()
 
 
@@ -136,7 +141,12 @@ def display_next_steps(project_name: str, use_direnv: bool) -> None:
 def main() -> None:
     """Point d'entrée principal du CLI."""
     # Parser les arguments (gère --version automatiquement)
-    parse_args()
+    args = parse_args()
+
+    # Gérer la sous-commande version
+    if args.command == "version":
+        display_version_banner()
+        return
 
     # Charger la configuration
     config = load_config()
