@@ -1,7 +1,7 @@
 """Génération des fichiers du projet."""
 
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from jinja2 import Environment, PackageLoader
@@ -20,6 +20,7 @@ class ProjectConfig:
     visibility: str
     use_direnv: bool
     pass_secret_path: str = "github/terraform-token"
+    technologies: list[str] = field(default_factory=list)
 
 
 def hcl_escape(value: str) -> str:
@@ -44,6 +45,19 @@ def get_template_env() -> Environment:
     return env
 
 
+def generate_gitignore_content(env: Environment, technologies: list[str]) -> str:
+    """Génère le contenu du .gitignore en concaténant les fragments."""
+    # Toujours inclure les patterns communs en premier
+    content = env.get_template("gitignore/_common.j2").render()
+
+    # Ajouter les fragments pour chaque technologie sélectionnée (ordre alphabétique)
+    for tech in sorted(technologies):
+        template_path = f"gitignore/{tech}.j2"
+        content += env.get_template(template_path).render()
+
+    return content
+
+
 def generate_project(config: ProjectConfig, target_dir: Path) -> bool:
     """Génère la structure complète du projet."""
     env = get_template_env()
@@ -65,9 +79,12 @@ def generate_project(config: ProjectConfig, target_dir: Path) -> bool:
         "pass_secret_path": config.pass_secret_path,
     }
 
-    # Générer les fichiers racine
+    # Générer le .gitignore dynamiquement à partir des fragments
+    gitignore_content = generate_gitignore_content(env, config.technologies)
+    (target_dir / ".gitignore").write_text(gitignore_content)
+
+    # Générer les autres fichiers racine
     root_files = [
-        ("gitignore.j2", ".gitignore"),
         ("README.md.j2", "README.md"),
         ("LICENSE.j2", "LICENSE"),
     ]
