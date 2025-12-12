@@ -76,26 +76,25 @@ uv tool upgrade projinit --reinstall
 
 ## 🚀 Utilisation
 
-> ⚠️ **Important** : Positionnez-vous dans le dossier où vous souhaitez générer le projet avant de lancer la commande.
-
 ```bash
-# Se placer dans le dossier cible
-cd ~/mes-projets
-
-# Si installé globalement
+# Si installé globalement (génère dans le dossier courant)
 projinit
+
+# Spécifier un chemin de destination
+projinit --path ~/mes-projets
 
 # Depuis le dossier du projet projinit (après uv sync)
 uv run projinit
 
-# Depuis n'importe où (sans installation globale)
-uv run --project /chemin/vers/projinit projinit
+# Avec un chemin personnalisé
+uv run projinit -p /tmp/projets
 ```
 
 ### Options
 
 | Option | Description |
 |--------|-------------|
+| `-p PATH`, `--path PATH` | Chemin de destination pour le projet (défaut: dossier courant) |
 | `-v`, `--version` | Affiche la version |
 | `-h`, `--help` | Affiche l'aide |
 
@@ -106,13 +105,14 @@ L'outil pose les questions suivantes de manière interactive :
 3. 👤 **Owner GitHub** — configurable via fichier de config
 4. 👁️ **Visibilité** — `public` ou `private`
 5. 🔐 **Direnv + pass** — pour la gestion sécurisée du token
+6. 🛠️ **Technologies** — sélection multiple (Python, Node.js, Go, Terraform, Docker, IDE)
 
 ## 📁 Structure générée
 
 ```
 <nom-projet>/
 ├── .envrc                 # Si direnv activé
-├── .gitignore
+├── .gitignore             # Adapté aux technologies sélectionnées
 ├── README.md
 ├── LICENSE
 └── terraform/
@@ -122,6 +122,8 @@ L'outil pose les questions suivantes de manière interactive :
     ├── versions.tf
     └── terraform.tfvars
 ```
+
+> 💡 Le fichier `.gitignore` est généré dynamiquement en fonction des technologies sélectionnées (Python, Node.js, Go, Terraform, Docker, IDE).
 
 ## ⚙️ Configuration
 

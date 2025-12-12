@@ -1,6 +1,7 @@
 """Logique interactive CLI."""
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -29,11 +30,54 @@ def parse_args() -> argparse.Namespace:
         action="version",
         version=f"projinit {__version__}",
     )
+    parser.add_argument(
+        "-p", "--path",
+        type=str,
+        default=None,
+        metavar="PATH",
+        help="Chemin de destination pour le projet (défaut: dossier courant)",
+    )
 
     subparsers = parser.add_subparsers(dest="command")
     subparsers.add_parser("version", help="Affiche les informations de version détaillées")
 
     return parser.parse_args()
+
+
+def _get_first_existing_parent(path: Path) -> Path:
+    """Trouve le premier parent existant pour vérifier les permissions."""
+    current = path.resolve()
+    while not current.exists():
+        current = current.parent
+    return current
+
+
+def resolve_output_path(path_arg: str | None) -> Path:
+    """Résout et valide le chemin de destination.
+
+    Args:
+        path_arg: Le chemin fourni via --path, ou None pour le dossier courant.
+
+    Returns:
+        Le chemin résolu et validé.
+
+    Raises:
+        ValueError: Si le chemin pointe vers un fichier existant.
+        PermissionError: Si pas de permission d'écriture.
+    """
+    if not path_arg or path_arg.strip() == "":
+        return Path.cwd()
+
+    resolved = Path(path_arg).expanduser().resolve()
+
+    if resolved.is_file():
+        raise ValueError(f"Le chemin '{resolved}' est un fichier, pas un dossier")
+
+    first_existing = _get_first_existing_parent(resolved)
+    if not os.access(first_existing, os.W_OK):
+        raise PermissionError(f"Pas de permission d'écriture sur '{first_existing}'")
+
+    return resolved
 
 
 def display_header() -> None:
@@ -108,15 +152,42 @@ def ask_direnv(config: Config) -> bool | None:
     ).ask()
 
 
-def display_summary(project_config: ProjectConfig) -> None:
+def ask_technologies() -> list[str] | None:
+    """Demande les technologies utilisées dans le projet."""
+    return questionary.checkbox(
+        "Technologies du projet :",
+        choices=[
+            questionary.Choice("Python", value="python"),
+            questionary.Choice("Node.js", value="node"),
+            questionary.Choice("Go", value="go"),
+            questionary.Choice("Terraform", value="terraform", checked=True),
+            questionary.Choice("Docker", value="docker"),
+            questionary.Choice("IDE (VSCode/JetBrains)", value="ide"),
+        ],
+    ).ask()
+
+
+def display_summary(project_config: ProjectConfig, target_dir: Path) -> None:
     """Affiche le récapitulatif de la configuration."""
     console.print()
     console.print("[bold]Récapitulatif :[/bold]")
     console.print(f"  Nom        : [cyan]{project_config.name}[/cyan]")
+    console.print(f"  Chemin     : [cyan]{target_dir}[/cyan]")
     console.print(f"  Description: [cyan]{project_config.description}[/cyan]")
     console.print(f"  Owner      : [cyan]{project_config.owner}[/cyan]")
     console.print(f"  Visibilité : [cyan]{project_config.visibility}[/cyan]")
     console.print(f"  Direnv     : [cyan]{'oui' if project_config.use_direnv else 'non'}[/cyan]")
+    if project_config.technologies:
+        tech_labels = {
+            "python": "Python",
+            "node": "Node.js",
+            "go": "Go",
+            "terraform": "Terraform",
+            "docker": "Docker",
+            "ide": "IDE",
+        }
+        tech_display = ", ".join(tech_labels.get(t, t) for t in project_config.technologies)
+        console.print(f"  Technologies: [cyan]{tech_display}[/cyan]")
     console.print()
 
 
@@ -148,6 +219,16 @@ def main() -> None:
         display_version_banner()
         return
 
+    # Résoudre le chemin de destination
+    try:
+        base_path = resolve_output_path(args.path)
+    except ValueError as e:
+        console.print(f"[red]Erreur: {e}[/red]")
+        sys.exit(1)
+    except PermissionError as e:
+        console.print(f"[red]Erreur: {e}[/red]")
+        sys.exit(1)
+
     # Charger la configuration
     config = load_config()
 
@@ -176,8 +257,13 @@ def main() -> None:
         console.print("[dim]Annulé[/dim]")
         sys.exit(1)
 
+    technologies = ask_technologies()
+    if technologies is None:
+        console.print("[dim]Annulé[/dim]")
+        sys.exit(1)
+
     # Vérifications
-    target_dir = Path.cwd() / project_name
+    target_dir = base_path / project_name
 
     if not check_directory_not_exists(target_dir):
         sys.exit(1)
@@ -193,9 +279,10 @@ def main() -> None:
         visibility=visibility,
         use_direnv=use_direnv,
         pass_secret_path=config.pass_secret_path,
+        technologies=technologies,
     )
 
-    display_summary(project_config)
+    display_summary(project_config, target_dir)
 
     # Confirmation
     confirm = questionary.confirm("Générer le projet ?", default=True).ask()
