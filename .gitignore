@@ -46,3 +46,4 @@ uv.lock
 
 # Configuration personnelle (ne pas partager)
 config.yaml
+.claude/settings.local.json
