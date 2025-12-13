@@ -25,6 +25,7 @@ FEATURES = [
     "Configuration automatique du provider GitHub",
     "Support direnv + pass pour les secrets",
     "Sélection des technologies (.gitignore adapté)",
+    "Génération automatique de .pre-commit-config.yaml",
     "Chemin de sortie personnalisable",
 ]
 
