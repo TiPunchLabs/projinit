@@ -9,7 +9,6 @@ import questionary
 from rich.console import Console
 from rich.panel import Panel
 
-from projinit import __version__
 from projinit.checks import check_directory_not_exists, run_direnv_checks
 from projinit.config import Config, load_config
 from projinit.generator import ProjectConfig, allow_direnv, generate_project, init_git_repository
@@ -17,6 +16,35 @@ from projinit.validators import validate_slug
 from projinit.version import display_version_banner
 
 console = Console()
+
+
+class VersionAction(argparse.Action):
+    """Action personnalisée pour afficher le banner de version stylisé."""
+
+    def __init__(
+        self,
+        option_strings: list[str],
+        dest: str = argparse.SUPPRESS,
+        default: str = argparse.SUPPRESS,
+        help: str = "Affiche les informations de version détaillées",  # noqa: A002
+    ) -> None:
+        super().__init__(
+            option_strings=option_strings,
+            dest=dest,
+            default=default,
+            nargs=0,
+            help=help,
+        )
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | None,
+        option_string: str | None = None,
+    ) -> None:
+        display_version_banner()
+        parser.exit()
 
 
 def parse_args() -> argparse.Namespace:
@@ -27,8 +55,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "-v", "--version",
-        action="version",
-        version=f"projinit {__version__}",
+        action=VersionAction,
     )
     parser.add_argument(
         "-p", "--path",

@@ -95,7 +95,7 @@ uv run projinit -p /tmp/projets
 | Option | Description |
 |--------|-------------|
 | `-p PATH`, `--path PATH` | Chemin de destination pour le projet (défaut: dossier courant) |
-| `-v`, `--version` | Affiche la version |
+| `-v`, `--version` | Affiche les informations de version détaillées avec banner ASCII |
 | `-h`, `--help` | Affiche l'aide |
 
 L'outil pose les questions suivantes de manière interactive :

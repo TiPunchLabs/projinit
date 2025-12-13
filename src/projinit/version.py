@@ -1,11 +1,7 @@
 """Affichage des informations de version."""
 
-import platform
-import sys
-
 from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
+from rich.text import Text
 
 from projinit import __version__
 
@@ -15,47 +11,62 @@ ASCII_ART = """\
 ██████╔╝██████╔╝██║   ██║     ██║██║██╔██╗ ██║██║   ██║
 ██╔═══╝ ██╔══██╗██║   ██║██   ██║██║██║╚██╗██║██║   ██║
 ██║     ██║  ██║╚██████╔╝╚█████╔╝██║██║ ╚████║██║   ██║
-╚═╝     ╚═╝  ╚═╝ ╚═════╝  ╚════╝ ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   """
+╚═╝     ╚═╝  ╚═╝ ╚═════╝  ╚════╝ ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝"""
 
 TAGLINE = "Project Scaffolding with Terraform + GitHub"
 
+DESCRIPTION = """\
+  Générateur de structure projet avec configuration Terraform
+  GitHub intégrée. Créez des projets prêts à déployer avec
+  infrastructure as code en quelques secondes."""
 
-def get_system_info() -> dict[str, str]:
-    """Récupère les informations système."""
-    return {
-        "CLI Version": __version__,
-        "Python": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
-        "Platform": platform.system(),
-        "Architecture": platform.machine(),
-        "OS Version": platform.release(),
-    }
+FEATURES = [
+    "Génération de structure projet avec Terraform GitHub",
+    "Configuration automatique du provider GitHub",
+    "Support direnv + pass pour les secrets",
+    "Sélection des technologies (.gitignore adapté)",
+    "Chemin de sortie personnalisable",
+]
+
+USAGE_EXAMPLES = [
+    ("projinit", "Menu interactif"),
+    ("projinit -p ~/projets", "Spécifier le chemin de sortie"),
+    ("projinit --help", "Afficher l'aide"),
+]
 
 
 def display_version_banner() -> None:
-    """Affiche le banner de version avec ASCII art et informations système."""
+    """Affiche le banner de version avec ASCII art, description, features et usage."""
     console = Console()
 
-    # ASCII Art sans centrage (les caractères Unicode ne sont pas bien gérés)
+    # ASCII Art
     console.print()
-    console.print(ASCII_ART.strip(), style="bold blue")
-    console.print(f"  {TAGLINE}", style="dim")
+    console.print(ASCII_ART, style="bold blue")
+
+    # Tagline centrée sous le banner
+    tagline_text = Text(f"            {TAGLINE}", style="dim")
+    console.print(tagline_text)
     console.print()
 
-    # Table des informations
-    table = Table(show_header=False, box=None, padding=(0, 2))
-    table.add_column("Key", style="dim", justify="right")
-    table.add_column("Value", style="cyan")
+    # Version centrée
+    version_text = Text(f"                        CLI v{__version__}", style="bold cyan")
+    console.print(version_text)
+    console.print()
 
-    for key, value in get_system_info().items():
-        table.add_row(key, value)
+    # Section Description
+    console.print("Description:", style="bold")
+    console.print(DESCRIPTION, style="dim")
+    console.print()
 
-    # Panel contenant la table
-    panel = Panel(
-        table,
-        title="projinit CLI Information",
-        border_style="blue",
-        padding=(1, 4),
-    )
+    # Section Features
+    console.print("Features:", style="bold")
+    for feature in FEATURES:
+        console.print(f"  - {feature}", style="dim")
+    console.print()
 
-    console.print(panel)
+    # Section Usage
+    console.print("Usage:", style="bold")
+    for cmd, desc in USAGE_EXAMPLES:
+        # Aligner les commandes et descriptions
+        console.print(f"  {cmd:<24} # {desc}", style="dim")
     console.print()
