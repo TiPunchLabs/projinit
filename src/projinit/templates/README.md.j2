@@ -44,6 +44,32 @@ terraform plan
 terraform apply
 ```
 
+## Pre-commit
+
+Ce projet utilise [pre-commit](https://pre-commit.com/) pour maintenir la qualité du code.
+
+### Installation
+
+```bash
+# Installer pre-commit
+pip install pre-commit
+
+# Installer les hooks
+pre-commit install
+```
+
+### Utilisation
+
+Les hooks s'exécutent automatiquement avant chaque commit. Pour les exécuter manuellement :
+
+```bash
+# Sur tous les fichiers
+pre-commit run --all-files
+
+# Sur les fichiers stagés uniquement
+pre-commit run
+```
+
 ## Licence
 
 MIT

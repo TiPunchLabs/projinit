@@ -9,6 +9,7 @@ import questionary
 from rich.console import Console
 from rich.panel import Panel
 
+from projinit import __version__
 from projinit.checks import check_directory_not_exists, run_direnv_checks
 from projinit.config import Config, load_config
 from projinit.generator import ProjectConfig, allow_direnv, generate_project, init_git_repository
@@ -189,6 +190,7 @@ def ask_technologies() -> list[str] | None:
             questionary.Choice("Go", value="go"),
             questionary.Choice("Terraform", value="terraform", checked=True),
             questionary.Choice("Docker", value="docker"),
+            questionary.Choice("Ansible", value="ansible"),
             questionary.Choice("IDE (VSCode/JetBrains)", value="ide"),
         ],
     ).ask()
@@ -211,6 +213,7 @@ def display_summary(project_config: ProjectConfig, target_dir: Path) -> None:
             "go": "Go",
             "terraform": "Terraform",
             "docker": "Docker",
+            "ansible": "Ansible",
             "ide": "IDE",
         }
         tech_display = ", ".join(tech_labels.get(t, t) for t in project_config.technologies)

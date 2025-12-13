@@ -105,14 +105,15 @@ L'outil pose les questions suivantes de manière interactive :
 3. 👤 **Owner GitHub** — configurable via fichier de config
 4. 👁️ **Visibilité** — `public` ou `private`
 5. 🔐 **Direnv + pass** — pour la gestion sécurisée du token
-6. 🛠️ **Technologies** — sélection multiple (Python, Node.js, Go, Terraform, Docker, IDE)
+6. 🛠️ **Technologies** — sélection multiple (Python, Node.js, Go, Terraform, Docker, Ansible, IDE)
 
 ## 📁 Structure générée
 
 ```
 <nom-projet>/
-├── .envrc                 # Si direnv activé
-├── .gitignore             # Adapté aux technologies sélectionnées
+├── .envrc                      # Si direnv activé
+├── .gitignore                  # Adapté aux technologies sélectionnées
+├── .pre-commit-config.yaml     # Hooks pre-commit selon les technologies
 ├── README.md
 ├── LICENSE
 └── terraform/
@@ -123,7 +124,7 @@ L'outil pose les questions suivantes de manière interactive :
     └── terraform.tfvars
 ```
 
-> 💡 Le fichier `.gitignore` est généré dynamiquement en fonction des technologies sélectionnées (Python, Node.js, Go, Terraform, Docker, IDE).
+> 💡 Les fichiers `.gitignore` et `.pre-commit-config.yaml` sont générés dynamiquement en fonction des technologies sélectionnées (Python, Node.js, Go, Terraform, Docker, Ansible, IDE).
 
 ## ⚙️ Configuration
 

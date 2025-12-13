@@ -58,6 +58,26 @@ def generate_gitignore_content(env: Environment, technologies: list[str]) -> str
     return content
 
 
+def generate_precommit_content(env: Environment, technologies: list[str]) -> str:
+    """Génère le contenu du .pre-commit-config.yaml en concaténant les fragments."""
+    # Toujours inclure le header avec les hooks communs
+    content = env.get_template("precommit/_header.j2").render()
+
+    # Ajouter les fragments pour chaque technologie sélectionnée (ordre alphabétique)
+    # Exclure 'ide' car il n'a pas de hooks pre-commit
+    for tech in sorted(technologies):
+        if tech == "ide":
+            continue
+        template_path = f"precommit/{tech}.j2"
+        try:
+            content += env.get_template(template_path).render()
+        except Exception:
+            # Template non trouvé pour cette technologie, ignorer
+            pass
+
+    return content
+
+
 def generate_project(config: ProjectConfig, target_dir: Path) -> bool:
     """Génère la structure complète du projet."""
     env = get_template_env()
@@ -82,6 +102,10 @@ def generate_project(config: ProjectConfig, target_dir: Path) -> bool:
     # Générer le .gitignore dynamiquement à partir des fragments
     gitignore_content = generate_gitignore_content(env, config.technologies)
     (target_dir / ".gitignore").write_text(gitignore_content)
+
+    # Générer le .pre-commit-config.yaml dynamiquement à partir des fragments
+    precommit_content = generate_precommit_content(env, config.technologies)
+    (target_dir / ".pre-commit-config.yaml").write_text(precommit_content)
 
     # Générer les autres fichiers racine
     root_files = [
