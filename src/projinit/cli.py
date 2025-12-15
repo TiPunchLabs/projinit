@@ -185,13 +185,37 @@ def ask_technologies() -> list[str] | None:
     return questionary.checkbox(
         "Technologies du projet :",
         choices=[
+            # Langages
+            questionary.Separator("── Langages ──"),
             questionary.Choice("Python", value="python"),
             questionary.Choice("Node.js", value="node"),
             questionary.Choice("Go", value="go"),
+            questionary.Choice("Rust", value="rust"),
+            questionary.Choice("Java/Kotlin", value="java"),
+            # Front-end
+            questionary.Separator("── Front-end ──"),
+            questionary.Choice("HTML/CSS", value="html"),
+            questionary.Choice("React", value="react"),
+            questionary.Choice("Vue.js", value="vue"),
+            questionary.Choice("Angular", value="angular"),
+            questionary.Choice("Svelte", value="svelte"),
+            questionary.Choice("Next.js/Nuxt.js", value="nextjs"),
+            # Infrastructure
+            questionary.Separator("── Infrastructure ──"),
             questionary.Choice("Terraform", value="terraform", checked=True),
+            questionary.Choice("Pulumi", value="pulumi"),
+            questionary.Choice("Kubernetes/Helm", value="kubernetes"),
+            # Conteneurs
+            questionary.Separator("── Conteneurs ──"),
             questionary.Choice("Docker", value="docker"),
+            # Automation
+            questionary.Separator("── Automation ──"),
             questionary.Choice("Ansible", value="ansible"),
+            questionary.Choice("Shell/Bash", value="shell"),
+            # Outils
+            questionary.Separator("── Outils ──"),
             questionary.Choice("IDE (VSCode/JetBrains)", value="ide"),
+            questionary.Choice("GitHub Actions", value="github-actions"),
         ],
     ).ask()
 
@@ -211,10 +235,22 @@ def display_summary(project_config: ProjectConfig, target_dir: Path) -> None:
             "python": "Python",
             "node": "Node.js",
             "go": "Go",
+            "rust": "Rust",
+            "java": "Java/Kotlin",
+            "html": "HTML/CSS",
+            "react": "React",
+            "vue": "Vue.js",
+            "angular": "Angular",
+            "svelte": "Svelte",
+            "nextjs": "Next.js/Nuxt.js",
             "terraform": "Terraform",
+            "pulumi": "Pulumi",
+            "kubernetes": "Kubernetes/Helm",
             "docker": "Docker",
             "ansible": "Ansible",
+            "shell": "Shell/Bash",
             "ide": "IDE",
+            "github-actions": "GitHub Actions",
         }
         tech_display = ", ".join(tech_labels.get(t, t) for t in project_config.technologies)
         console.print(f"  Technologies: [cyan]{tech_display}[/cyan]")
