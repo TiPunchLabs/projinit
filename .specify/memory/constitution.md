@@ -48,7 +48,23 @@ src/projinit/
 ├── checks.py       → Vérification des dépendances système
 ├── generator.py    → Génération des fichiers projet
 └── templates/      → Templates Jinja2
+    ├── gitignore/  → Templates .gitignore par technologie
+    └── precommit/  → Templates pre-commit par technologie
 ```
+
+### Technologies Supportées
+La sélection des technologies est organisée en catégories pour une meilleure UX :
+
+| Catégorie | Technologies |
+|-----------|--------------|
+| Langages | Python, Node.js, Go, Rust, Java/Kotlin |
+| Front-end | HTML/CSS, React, Vue.js, Angular, Svelte, Next.js/Nuxt.js |
+| Infrastructure | Terraform, Pulumi, Kubernetes/Helm |
+| Conteneurs | Docker |
+| Automation | Ansible, Shell/Bash |
+| Outils | IDE (VSCode/JetBrains), GitHub Actions |
+
+Chaque technologie dispose d'un template `.gitignore` dédié. Les technologies avec outils de linting (Python, Node.js, Go, Rust, Shell/Bash, Java, Terraform, Docker, Ansible) disposent également d'un template pre-commit.
 
 ### Flux de Données
 1. **Entrée CLI** → Questionnaire interactif
@@ -101,4 +117,4 @@ Cette constitution définit les principes fondateurs de projinit. Toute modifica
 3. Extensibilité via les templates
 4. Compatibilité avec l'écosystème Terraform
 
-**Version**: 1.0.0 | **Ratified**: 2025-12-02 | **Last Amended**: 2025-12-02
+**Version**: 1.1.0 | **Ratified**: 2025-12-02 | **Last Amended**: 2025-12-15
