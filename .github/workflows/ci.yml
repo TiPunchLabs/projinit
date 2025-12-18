@@ -27,11 +27,8 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Install dependencies
-        run: uv sync
-
       - name: Run ruff linter
-        run: uv run ruff check src/
+        run: uvx ruff check src/
 
   format:
     name: Format Check (Python ${{ matrix.python-version }})
@@ -51,11 +48,8 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Install dependencies
-        run: uv sync
-
       - name: Check code formatting
-        run: uv run ruff format src/ --check
+        run: uvx ruff format src/ --check
 
   test:
     name: Tests (Python ${{ matrix.python-version }})
