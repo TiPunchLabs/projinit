@@ -45,7 +45,9 @@ def check_pass_secret_exists(secret_path: str) -> bool:
             check=False,
         )
         if result.returncode != 0:
-            console.print(f"[red]Le secret '{secret_path}' n'existe pas dans pass[/red]")
+            console.print(
+                f"[red]Le secret '{secret_path}' n'existe pas dans pass[/red]"
+            )
             console.print(f"[dim]Créez-le avec : pass insert {secret_path}[/dim]")
             return False
         return True

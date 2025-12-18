@@ -50,7 +50,9 @@ def display_version_banner() -> None:
     console.print()
 
     # Version centrée
-    version_text = Text(f"                        CLI v{__version__}", style="bold cyan")
+    version_text = Text(
+        f"                        CLI v{__version__}", style="bold cyan"
+    )
     console.print(version_text)
     console.print()
 

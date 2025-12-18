@@ -26,8 +26,7 @@ class ProjectConfig:
 def hcl_escape(value: str) -> str:
     """Échappe une chaîne pour Terraform/HCL."""
     return (
-        value
-        .replace("\\", "\\\\")
+        value.replace("\\", "\\\\")
         .replace('"', '\\"')
         .replace("\n", " ")
         .replace("\r", "")
