@@ -10,6 +10,8 @@
             Project Scaffolding with Terraform + GitHub
 ```
 
+[![CI](https://github.com/TiPunchLabs/projinit/actions/workflows/ci.yml/badge.svg)](https://github.com/TiPunchLabs/projinit/actions/workflows/ci.yml)
+
 > 🏗️ CLI pour générer la structure d'un projet avec configuration [Terraform](https://www.terraform.io/) + [GitHub](https://github.com/).
 
 > 🐧 **Linux first** — Conçu pour les environnements Linux. Peut fonctionner sur macOS, non testé sur Windows.

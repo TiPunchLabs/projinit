@@ -107,6 +107,25 @@ Chaque technologie dispose d'un template `.gitignore` dédié. Les technologies 
 - Tests d'intégration pour le workflow complet
 - Tests des templates avec différentes combinaisons de paramètres
 
+## Intégration Continue (CI)
+
+### Pipeline GitHub Actions
+Un workflow CI automatisé valide la qualité du code à chaque push et Pull Request :
+
+| Job | Outil | Description |
+|-----|-------|-------------|
+| lint | ruff check | Vérification des règles de linting Python |
+| format | ruff format --check | Vérification du formatage du code |
+| test | pytest | Exécution des tests unitaires et d'intégration |
+
+### Matrice de Tests
+Le pipeline s'exécute sur Python 3.10, 3.11 et 3.12 pour garantir la compatibilité.
+
+### Standards de Validation
+- Tout push déclenche le pipeline
+- Les PRs vers `main` doivent passer tous les checks
+- Aucun code ne doit être fusionné avec des erreurs de linting ou de formatage
+
 ## Gouvernance
 
 Cette constitution définit les principes fondateurs de projinit. Toute modification architecturale doit respecter ces principes. Les amendements nécessitent une justification documentée et une mise à jour de ce document.
@@ -117,4 +136,4 @@ Cette constitution définit les principes fondateurs de projinit. Toute modifica
 3. Extensibilité via les templates
 4. Compatibilité avec l'écosystème Terraform
 
-**Version**: 1.1.0 | **Ratified**: 2025-12-02 | **Last Amended**: 2025-12-15
+**Version**: 1.2.0 | **Ratified**: 2025-12-02 | **Last Amended**: 2025-12-18

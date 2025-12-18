@@ -12,7 +12,12 @@ from rich.panel import Panel
 from projinit import __version__
 from projinit.checks import check_directory_not_exists, run_direnv_checks
 from projinit.config import Config, load_config
-from projinit.generator import ProjectConfig, allow_direnv, generate_project, init_git_repository
+from projinit.generator import (
+    ProjectConfig,
+    allow_direnv,
+    generate_project,
+    init_git_repository,
+)
 from projinit.validators import validate_slug
 from projinit.version import display_version_banner
 
@@ -55,11 +60,13 @@ def parse_args() -> argparse.Namespace:
         description="CLI pour générer la structure d'un projet avec configuration Terraform GitHub",
     )
     parser.add_argument(
-        "-v", "--version",
+        "-v",
+        "--version",
         action=VersionAction,
     )
     parser.add_argument(
-        "-p", "--path",
+        "-p",
+        "--path",
         type=str,
         default=None,
         metavar="PATH",
@@ -67,7 +74,9 @@ def parse_args() -> argparse.Namespace:
     )
 
     subparsers = parser.add_subparsers(dest="command")
-    subparsers.add_parser("version", help="Affiche les informations de version détaillées")
+    subparsers.add_parser(
+        "version", help="Affiche les informations de version détaillées"
+    )
 
     return parser.parse_args()
 
@@ -125,7 +134,9 @@ def ask_project_name() -> str | None:
     """Demande le nom du projet."""
     return questionary.text(
         "Nom du projet :",
-        validate=lambda val: validate_slug(val) if isinstance(validate_slug(val), bool) else validate_slug(val),
+        validate=lambda val: validate_slug(val)
+        if isinstance(validate_slug(val), bool)
+        else validate_slug(val),
     ).ask()
 
 
@@ -145,8 +156,7 @@ def ask_description(project_name: str) -> str:
 def ask_owner(config: Config) -> str | None:
     """Demande le propriétaire GitHub."""
     choices = [
-        questionary.Choice(owner.label, value=owner.name)
-        for owner in config.owners
+        questionary.Choice(owner.label, value=owner.name) for owner in config.owners
     ]
 
     if not choices:
@@ -229,7 +239,9 @@ def display_summary(project_config: ProjectConfig, target_dir: Path) -> None:
     console.print(f"  Description: [cyan]{project_config.description}[/cyan]")
     console.print(f"  Owner      : [cyan]{project_config.owner}[/cyan]")
     console.print(f"  Visibilité : [cyan]{project_config.visibility}[/cyan]")
-    console.print(f"  Direnv     : [cyan]{'oui' if project_config.use_direnv else 'non'}[/cyan]")
+    console.print(
+        f"  Direnv     : [cyan]{'oui' if project_config.use_direnv else 'non'}[/cyan]"
+    )
     if project_config.technologies:
         tech_labels = {
             "python": "Python",
@@ -252,7 +264,9 @@ def display_summary(project_config: ProjectConfig, target_dir: Path) -> None:
             "ide": "IDE",
             "github-actions": "GitHub Actions",
         }
-        tech_display = ", ".join(tech_labels.get(t, t) for t in project_config.technologies)
+        tech_display = ", ".join(
+            tech_labels.get(t, t) for t in project_config.technologies
+        )
         console.print(f"  Technologies: [cyan]{tech_display}[/cyan]")
     console.print()
 
