@@ -1,0 +1,25 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Python
+*.py text diff=python
+*.pyi text diff=python
+
+# Shell
+*.sh text eol=lf
+
+# Documentation
+*.md text diff=markdown
+*.txt text
+
+# Configuration
+*.yaml text
+*.yml text
+*.json text
+*.toml text
+
+# Templates
+*.j2 text
+
+# Ignore generated files in diffs
+uv.lock -diff linguist-generated=true
