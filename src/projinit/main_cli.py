@@ -18,6 +18,7 @@ from projinit.generator import (
     generate_project,
     init_git_repository,
 )
+from projinit.cli.check_cmd import add_check_parser, run_check
 from projinit.validators import validate_slug
 from projinit.version import display_version_banner
 
@@ -57,7 +58,7 @@ def parse_args() -> argparse.Namespace:
     """Parse les arguments de la ligne de commande."""
     parser = argparse.ArgumentParser(
         prog="projinit",
-        description="CLI pour générer la structure d'un projet avec configuration Terraform GitHub",
+        description="CLI pour initialiser, auditer et mettre à jour des projets selon des standards définis",
     )
     parser.add_argument(
         "-v",
@@ -77,6 +78,10 @@ def parse_args() -> argparse.Namespace:
     subparsers.add_parser(
         "version", help="Affiche les informations de version détaillées"
     )
+    subparsers.add_parser(
+        "init", help="Initialise un nouveau projet (mode interactif)"
+    )
+    add_check_parser(subparsers)
 
     return parser.parse_args()
 
@@ -299,6 +304,12 @@ def main() -> None:
         display_version_banner()
         return
 
+    # Gérer la sous-commande check
+    if args.command == "check":
+        exit_code = run_check(args)
+        sys.exit(exit_code)
+
+    # Si init explicite ou pas de commande, lancer le mode interactif
     # Résoudre le chemin de destination
     try:
         base_path = resolve_output_path(args.path)

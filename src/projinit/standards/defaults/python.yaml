@@ -1,0 +1,80 @@
+# Python project standards
+name: Python Standards
+version: "1.0"
+description: Standards for Python projects (CLI and Library)
+applies_to:
+  - python-cli
+  - python-lib
+
+markers:
+  - pyproject.toml
+  - setup.py
+
+checks:
+  - id: has_pyproject
+    description: pyproject.toml must exist (PEP 517/518)
+    level: required
+    type: file_exists
+    path: pyproject.toml
+    template: templates/pyproject.toml.j2
+
+  - id: has_src_dir
+    description: Source code should be in src/ directory
+    level: recommended
+    type: dir_exists
+    path: src/
+
+  - id: has_tests_dir
+    description: Tests should be in tests/ directory
+    level: recommended
+    type: dir_exists
+    path: tests/
+
+  - id: pyproject_has_project_section
+    description: pyproject.toml must have [project] section
+    level: required
+    type: content_contains
+    path: pyproject.toml
+    patterns:
+      - "[project]"
+
+  - id: pyproject_has_python_requires
+    description: pyproject.toml should specify requires-python
+    level: recommended
+    type: content_contains
+    path: pyproject.toml
+    patterns:
+      - "requires-python"
+
+  - id: has_ruff_config
+    description: Ruff linter should be configured
+    level: recommended
+    type: content_contains
+    path: pyproject.toml
+    patterns:
+      - "[tool.ruff]"
+
+  - id: precommit_has_ruff
+    description: Pre-commit should include ruff hooks
+    level: recommended
+    type: content_contains
+    path: .pre-commit-config.yaml
+    patterns:
+      - "ruff-pre-commit"
+      - "id: ruff"
+
+  - id: has_py_typed
+    description: py.typed marker for type hints (library projects)
+    level: optional
+    type: file_exists
+    path: src/*/py.typed
+    applies_to:
+      - python-lib
+
+precommit_hooks:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.3
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format

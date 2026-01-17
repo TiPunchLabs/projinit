@@ -1,0 +1,66 @@
+# Node.js project standards
+name: Node.js Standards
+version: "1.0"
+description: Standards for Node.js frontend projects
+applies_to:
+  - node-frontend
+
+markers:
+  - package.json
+
+checks:
+  - id: has_package_json
+    description: package.json must exist
+    level: required
+    type: file_exists
+    path: package.json
+
+  - id: has_src_dir
+    description: Source code should be in src/ directory
+    level: recommended
+    type: dir_exists
+    path: src/
+
+  - id: has_tsconfig
+    description: TypeScript configuration should exist
+    level: recommended
+    type: file_exists
+    path: tsconfig.json
+
+  - id: package_has_scripts
+    description: package.json should have dev/build/test scripts
+    level: recommended
+    type: content_contains
+    path: package.json
+    patterns:
+      - '"dev"'
+      - '"build"'
+      - '"test"'
+
+  - id: package_has_type_module
+    description: package.json should use ES modules
+    level: recommended
+    type: content_contains
+    path: package.json
+    patterns:
+      - '"type": "module"'
+
+  - id: has_eslint_config
+    description: ESLint configuration should exist
+    level: recommended
+    type: file_exists
+    path: eslint.config.js
+    alternatives:
+      - .eslintrc.js
+      - .eslintrc.json
+      - .eslintrc.yaml
+
+  - id: has_prettier_config
+    description: Prettier configuration should exist
+    level: optional
+    type: file_exists
+    path: .prettierrc
+    alternatives:
+      - .prettierrc.json
+      - .prettierrc.js
+      - prettier.config.js

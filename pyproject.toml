@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "projinit"
-version = "0.3.0"
-description = "CLI pour générer la structure d'un projet avec configuration Terraform GitHub"
+version = "2.0.0-dev"
+description = "CLI pour initialiser, auditer et mettre à jour des projets selon des standards définis"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
@@ -32,7 +32,7 @@ dependencies = [
 ]
 
 [project.scripts]
-projinit = "projinit.cli:main"
+projinit = "projinit.main_cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/projinit"]

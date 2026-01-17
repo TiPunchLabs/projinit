@@ -1,0 +1,66 @@
+# Documentation project standards
+name: Documentation Standards
+version: "1.0"
+description: Standards for documentation projects (MkDocs)
+applies_to:
+  - documentation
+
+markers:
+  - mkdocs.yml
+  - mkdocs.yaml
+  - docs/
+
+checks:
+  - id: has_mkdocs_config
+    description: MkDocs configuration must exist
+    level: required
+    type: file_exists
+    path: mkdocs.yml
+    alternatives:
+      - mkdocs.yaml
+
+  - id: has_docs_dir
+    description: Documentation content should be in docs/ directory
+    level: recommended
+    type: dir_exists
+    path: docs/
+
+  - id: has_index_page
+    description: Documentation should have an index page
+    level: required
+    type: file_exists
+    path: docs/index.md
+
+  - id: mkdocs_has_site_name
+    description: MkDocs should have site_name configured
+    level: required
+    type: content_contains
+    path: mkdocs.yml
+    patterns:
+      - "site_name:"
+    alternatives:
+      - mkdocs.yaml
+
+  - id: mkdocs_has_theme
+    description: MkDocs should have theme configured
+    level: recommended
+    type: content_contains
+    path: mkdocs.yml
+    patterns:
+      - "theme:"
+    alternatives:
+      - mkdocs.yaml
+
+  - id: has_pyproject_for_deps
+    description: pyproject.toml should exist for MkDocs dependencies
+    level: recommended
+    type: file_exists
+    path: pyproject.toml
+
+  - id: precommit_has_yamllint
+    description: Pre-commit should include yamllint for YAML files
+    level: optional
+    type: content_contains
+    path: .pre-commit-config.yaml
+    patterns:
+      - yamllint
