@@ -57,10 +57,12 @@ checks:
 
   # Technical documentation
   - id: has_technical_docs
-    description: doc/ directory with technical documentation should exist
+    description: doc/ or docs/ directory with technical documentation should exist
     level: recommended
     type: dir_exists
     path: doc
+    alternatives:
+      - docs
 
   # Security - direnv with pass for secrets
   - id: envrc_uses_pass

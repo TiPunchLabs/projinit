@@ -149,16 +149,25 @@ def _merge_standards(base: dict, overlay: dict) -> dict:
     Merge two standards dictionaries.
 
     Lists (checks, hooks) are concatenated, other values are overwritten.
+    Does not modify the original base dictionary.
     """
-    result = base.copy()
+    # Deep copy lists to avoid modifying the original
+    result = {}
+    for key, value in base.items():
+        if isinstance(value, list):
+            result[key] = list(value)  # Create a copy of the list
+        else:
+            result[key] = value
 
     for key, value in overlay.items():
         if key in ("checks", "precommit_hooks") and isinstance(value, list):
             # Concatenate lists, avoiding duplicates by id
-            existing_ids = {item.get("id") for item in result.get(key, [])}
+            if key not in result:
+                result[key] = []
+            existing_ids = {item.get("id") for item in result[key]}
             for item in value:
                 if item.get("id") not in existing_ids:
-                    result.setdefault(key, []).append(item)
+                    result[key].append(item)
                     existing_ids.add(item.get("id"))
         else:
             result[key] = value
