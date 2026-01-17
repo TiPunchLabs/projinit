@@ -308,6 +308,7 @@ def _get_files_for_type(project_type: ProjectType) -> list[str]:
         ".claude/commands/lint.md",
         ".claude/commands/sync-docs.md",
         ".claude/commands/sync-tech-docs.md",
+        ".claude/commands/opensource-ready.md",
         "doc/README.md",
         "doc/architecture.md",
         "doc/development.md",
@@ -797,6 +798,7 @@ def _generate_claude_commands(
         "lint.md",
         "sync-docs.md",
         "sync-tech-docs.md",
+        "opensource-ready.md",
     ]
 
     for cmd in common_commands:
