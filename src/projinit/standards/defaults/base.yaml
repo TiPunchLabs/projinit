@@ -55,6 +55,13 @@ checks:
     type: dir_exists
     path: .claude/commands
 
+  # Technical documentation
+  - id: has_technical_docs
+    description: doc/ directory with technical documentation should exist
+    level: recommended
+    type: dir_exists
+    path: doc
+
   # Security - direnv with pass for secrets
   - id: envrc_uses_pass
     description: .envrc should use pass for secure secrets management

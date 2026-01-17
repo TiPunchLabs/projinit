@@ -1,0 +1,241 @@
+# Configuration
+
+## Overview
+
+This document describes the configuration options for {{ project_name }}.
+
+{% if project_type in ["python-cli", "python-lib"] %}
+## pyproject.toml
+
+The main configuration file for the project.
+
+### Project Metadata
+
+```toml
+[project]
+name = "{{ project_name }}"
+version = "0.1.0"
+description = "{{ description }}"
+requires-python = ">={{ python_version }}"
+```
+
+### Dependencies
+
+```toml
+[project.dependencies]
+# Add runtime dependencies here
+# example = ">=1.0.0"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "ruff>=0.1.0",
+]
+```
+
+{% if project_type == "python-cli" %}
+### CLI Entry Point
+
+```toml
+[project.scripts]
+{{ project_name }} = "{{ project_name_snake }}.cli:main"
+```
+{% endif %}
+
+### Ruff Configuration
+
+```toml
+[tool.ruff]
+line-length = 88
+target-version = "py{{ python_version | replace('.', '') }}"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+```
+
+### pytest Configuration
+
+```toml
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+```
+
+{% elif project_type == "node-frontend" %}
+## package.json
+
+### Scripts
+
+```json
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/",
+    "test": "vitest"
+  }
+}
+```
+
+### Dependencies
+
+Add dependencies using npm:
+
+```bash
+npm install <package>        # Runtime dependency
+npm install -D <package>     # Development dependency
+```
+
+## TypeScript Configuration
+
+### tsconfig.json
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "strict": true,
+    "moduleResolution": "bundler"
+  }
+}
+```
+
+## Vite Configuration
+
+### vite.config.ts
+
+```typescript
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  // Add custom configuration here
+})
+```
+
+{% elif project_type == "infrastructure" %}
+## Terraform Variables
+
+### variables.tf
+
+Define input variables:
+
+```hcl
+variable "environment" {
+  description = "Deployment environment"
+  type        = string
+  default     = "dev"
+}
+
+variable "region" {
+  description = "Cloud region"
+  type        = string
+}
+```
+
+### terraform.tfvars
+
+Set variable values (not committed to git):
+
+```hcl
+environment = "production"
+region      = "eu-west-1"
+```
+
+## Ansible Configuration
+
+### ansible.cfg
+
+```ini
+[defaults]
+inventory = inventory/hosts.yml
+roles_path = roles/
+```
+
+### Inventory
+
+```yaml
+# inventory/hosts.yml
+all:
+  hosts:
+    server1:
+      ansible_host: 192.168.1.10
+```
+
+{% elif project_type in ["documentation", "lab"] %}
+## MkDocs Configuration
+
+### mkdocs.yml
+
+```yaml
+site_name: {{ project_name }}
+site_description: {{ description }}
+
+theme:
+  name: material
+  # Customize theme here
+
+nav:
+  - Home: index.md
+  # Add navigation structure
+```
+
+### Dependencies
+
+```toml
+# pyproject.toml
+[project.dependencies]
+mkdocs = ">=1.5.0"
+mkdocs-material = ">=9.0.0"
+```
+
+{% endif %}
+
+## Environment Variables
+
+{% if project_type in ["python-cli", "python-lib", "infrastructure"] %}
+### Using direnv + pass
+
+If direnv is enabled, secrets are loaded from `.envrc`:
+
+```bash
+# .envrc
+export API_KEY=$(pass show projects/secrets/{{ project_name }}/api-key)
+```
+
+### Manual Setup
+
+Without direnv, export variables manually:
+
+```bash
+export API_KEY="your-api-key"
+```
+{% else %}
+### Local Development
+
+Create a `.env.local` file (not committed):
+
+```bash
+VITE_API_URL=http://localhost:3000
+```
+{% endif %}
+
+## Configuration Hierarchy
+
+| Level | Location | Purpose |
+|-------|----------|---------|
+| Default | Hardcoded | Sensible defaults |
+| Environment | ENV vars | Runtime overrides |
+| Local | .env / .envrc | Developer-specific |
+
+## Adding New Configuration
+
+1. Define the configuration option
+2. Document it in this file
+3. Add validation if needed
+4. Update relevant code to use it

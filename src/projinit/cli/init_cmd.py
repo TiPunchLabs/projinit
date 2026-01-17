@@ -306,6 +306,10 @@ def _get_files_for_type(project_type: ProjectType) -> list[str]:
         ".claude/commands/quality.md",
         ".claude/commands/commit.md",
         ".claude/commands/lint.md",
+        "doc/README.md",
+        "doc/architecture.md",
+        "doc/development.md",
+        "doc/configuration.md",
     ]
 
     type_specific = {
@@ -435,6 +439,9 @@ def _generate_common_files(
 
     # .claude/commands/
     _generate_claude_commands(env, target_dir, context, project_type)
+
+    # doc/ technical documentation
+    _generate_technical_docs(env, target_dir, context, project_type)
 
 
 def _generate_python_project(
@@ -789,6 +796,28 @@ def _generate_claude_commands(
         try:
             template = env.get_template(template_name)
             (commands_dir / cmd).write_text(template.render(**context))
+        except Exception:
+            pass
+
+
+def _generate_technical_docs(
+    env: Environment,
+    target_dir: Path,
+    context: dict,
+    project_type: ProjectType,
+) -> None:
+    """Generate doc/ directory with technical documentation."""
+    doc_dir = target_dir / "doc"
+    doc_dir.mkdir(parents=True, exist_ok=True)
+
+    # Documentation files to generate
+    doc_files = ["README.md", "architecture.md", "development.md", "configuration.md"]
+
+    for doc_file in doc_files:
+        template_name = f"doc/{doc_file}.j2"
+        try:
+            template = env.get_template(template_name)
+            (doc_dir / doc_file).write_text(template.render(**context))
         except Exception:
             pass
 
