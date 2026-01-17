@@ -126,7 +126,9 @@ def merge_precommit_config(existing_path: Path, hooks_to_add: list[dict]) -> str
             # Add new repo
             existing["repos"].append(hook_def)
 
-    return yaml.dump(existing, default_flow_style=False, allow_unicode=True, sort_keys=False)
+    return yaml.dump(
+        existing, default_flow_style=False, allow_unicode=True, sort_keys=False
+    )
 
 
 def merge_toml_section(existing_content: str, section: str, values: dict) -> str:
@@ -154,7 +156,9 @@ def merge_toml_section(existing_content: str, section: str, values: dict) -> str
         if isinstance(value, str):
             lines.append(f'{key} = "{value}"')
         elif isinstance(value, list):
-            list_str = ", ".join(f'"{v}"' if isinstance(v, str) else str(v) for v in value)
+            list_str = ", ".join(
+                f'"{v}"' if isinstance(v, str) else str(v) for v in value
+            )
             lines.append(f"{key} = [{list_str}]")
         else:
             lines.append(f"{key} = {value}")

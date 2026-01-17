@@ -73,7 +73,9 @@ def run_check(args: argparse.Namespace) -> int:
     if args.type:
         project_type = ProjectType(args.type)
         if args.verbose:
-            console.print(f"[dim]Using specified project type: {project_type.display_name}[/dim]")
+            console.print(
+                f"[dim]Using specified project type: {project_type.display_name}[/dim]"
+            )
     else:
         detection = detect_project_type(project_path)
         project_type = detection.project_type
@@ -84,7 +86,9 @@ def run_check(args: argparse.Namespace) -> int:
                 f"(confidence: {detection.confidence:.0%})[/dim]"
             )
             if detection.markers_found:
-                console.print(f"[dim]Markers found: {', '.join(detection.markers_found)}[/dim]")
+                console.print(
+                    f"[dim]Markers found: {', '.join(detection.markers_found)}[/dim]"
+                )
 
         if project_type == ProjectType.UNKNOWN:
             console.print("[yellow]Warning: Could not detect project type[/yellow]")

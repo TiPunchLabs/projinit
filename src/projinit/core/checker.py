@@ -45,7 +45,9 @@ class Checker:
             results.append(result)
             # Track scanned files
             if result.file_path:
-                self._files_scanned.add(str(result.file_path.relative_to(self.project_path)))
+                self._files_scanned.add(
+                    str(result.file_path.relative_to(self.project_path))
+                )
 
         execution_time_ms = (time.perf_counter() - start_time) * 1000
 
@@ -75,11 +77,15 @@ class Checker:
 
         try:
             if check_type == "file_exists":
-                return self._check_file_exists(check_def, check_id, level, description, template)
+                return self._check_file_exists(
+                    check_def, check_id, level, description, template
+                )
             elif check_type == "dir_exists":
                 return self._check_dir_exists(check_def, check_id, level, description)
             elif check_type == "content_contains":
-                return self._check_content_contains(check_def, check_id, level, description)
+                return self._check_content_contains(
+                    check_def, check_id, level, description
+                )
             elif check_type == "any_exists":
                 return self._check_any_exists(check_def, check_id, level, description)
             else:

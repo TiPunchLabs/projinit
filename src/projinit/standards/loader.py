@@ -73,7 +73,8 @@ def _apply_config_overrides(standards: dict, config) -> dict:
     # Remove disabled checks
     if config.standards.disabled_checks:
         standards["checks"] = [
-            c for c in standards.get("checks", [])
+            c
+            for c in standards.get("checks", [])
             if c.get("id") not in config.standards.disabled_checks
         ]
 

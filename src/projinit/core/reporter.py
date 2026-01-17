@@ -81,7 +81,9 @@ class Reporter:
             self.console.print()
             self.console.print(f"[bold {style}]{title} Checks[/bold {style}]")
 
-            table = Table(show_header=True, header_style="bold", box=None, padding=(0, 1))
+            table = Table(
+                show_header=True, header_style="bold", box=None, padding=(0, 1)
+            )
             table.add_column("", width=6)
             table.add_column("Check", width=28)
             table.add_column("Result")
@@ -102,7 +104,9 @@ class Reporter:
         # Create progress bar
         with Progress(
             TextColumn("[bold]Conformity Score"),
-            BarColumn(bar_width=40, complete_style=score_color, finished_style=score_color),
+            BarColumn(
+                bar_width=40, complete_style=score_color, finished_style=score_color
+            ),
             TextColumn(f"[bold {score_color}]{score:.1f}%[/bold {score_color}]"),
             console=self.console,
             transient=False,
@@ -152,7 +156,9 @@ class Reporter:
 
         # Main suggestion: run update
         self.console.print("  [green]projinit update[/green]")
-        self.console.print("  [dim]Auto-fix all issues that can be automatically resolved[/dim]")
+        self.console.print(
+            "  [dim]Auto-fix all issues that can be automatically resolved[/dim]"
+        )
         self.console.print()
 
         # Individual suggestions
@@ -162,17 +168,23 @@ class Reporter:
                 self.console.print(f"    [dim]{check_id}:[/dim] {suggestion}")
 
             if len(suggestions) > 5:
-                self.console.print(f"    [dim]... and {len(suggestions) - 5} more[/dim]")
+                self.console.print(
+                    f"    [dim]... and {len(suggestions) - 5} more[/dim]"
+                )
 
     def _print_verbose_info(self) -> None:
         """Print verbose technical information."""
         self.console.print()
         self.console.print("[dim]Technical Details:[/dim]")
-        self.console.print(f"  [dim]Execution time: {self.report.execution_time_ms:.1f}ms[/dim]")
+        self.console.print(
+            f"  [dim]Execution time: {self.report.execution_time_ms:.1f}ms[/dim]"
+        )
         self.console.print(f"  [dim]Checks run: {self.report.total_count}[/dim]")
 
         if self.report.files_scanned:
-            self.console.print(f"  [dim]Files checked: {len(self.report.files_scanned)}[/dim]")
+            self.console.print(
+                f"  [dim]Files checked: {len(self.report.files_scanned)}[/dim]"
+            )
             if len(self.report.files_scanned) <= 10:
                 for f in self.report.files_scanned:
                     self.console.print(f"    [dim]- {f}[/dim]")
@@ -225,8 +237,12 @@ class Reporter:
         )
 
         # Generate shields.io badge URLs
-        status_badge = f"![Status](https://img.shields.io/badge/status-{status}-{status_color})"
-        score_badge = f"![Score](https://img.shields.io/badge/score-{score:.0f}%25-{score_color})"
+        status_badge = (
+            f"![Status](https://img.shields.io/badge/status-{status}-{status_color})"
+        )
+        score_badge = (
+            f"![Score](https://img.shields.io/badge/score-{score:.0f}%25-{score_color})"
+        )
 
         lines = [
             "# Project Audit Report",
@@ -258,7 +274,14 @@ class Reporter:
             if not checks:
                 continue
 
-            lines.extend([f"## {title}", "", "| Status | Check | Message |", "|--------|-------|---------|"])
+            lines.extend(
+                [
+                    f"## {title}",
+                    "",
+                    "| Status | Check | Message |",
+                    "|--------|-------|---------|",
+                ]
+            )
 
             for check in checks:
                 status_emoji = self._get_status_emoji(check.status)
@@ -269,35 +292,41 @@ class Reporter:
             lines.append("")
 
         # Summary
-        lines.extend([
-            "## Summary",
-            "",
-            f"- **Passed**: {self.report.passed_count}",
-            f"- **Failed**: {self.report.failed_count}",
-            f"- **Warnings**: {self.report.warning_count}",
-            f"- **Total**: {self.report.total_count}",
-            "",
-        ])
+        lines.extend(
+            [
+                "## Summary",
+                "",
+                f"- **Passed**: {self.report.passed_count}",
+                f"- **Failed**: {self.report.failed_count}",
+                f"- **Warnings**: {self.report.warning_count}",
+                f"- **Total**: {self.report.total_count}",
+                "",
+            ]
+        )
 
         # Quick fix section
         if self.report.failed_checks:
-            lines.extend([
-                "## Quick Fix",
-                "",
-                "Run the following command to automatically fix issues:",
-                "",
-                "```bash",
-                "projinit update",
-                "```",
-                "",
-            ])
+            lines.extend(
+                [
+                    "## Quick Fix",
+                    "",
+                    "Run the following command to automatically fix issues:",
+                    "",
+                    "```bash",
+                    "projinit update",
+                    "```",
+                    "",
+                ]
+            )
 
         # Footer
-        lines.extend([
-            "---",
-            "",
-            f"*Generated by projinit in {self.report.execution_time_ms:.1f}ms*",
-        ])
+        lines.extend(
+            [
+                "---",
+                "",
+                f"*Generated by projinit in {self.report.execution_time_ms:.1f}ms*",
+            ]
+        )
 
         return "\n".join(lines)
 

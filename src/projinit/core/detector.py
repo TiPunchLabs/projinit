@@ -72,7 +72,9 @@ def detect_project_type(path: Path) -> DetectionResult:
             markers_checked=list(_get_all_markers()),
         )
 
-    scores: dict[ProjectType, float] = {pt: 0.0 for pt in ProjectType if pt != ProjectType.UNKNOWN}
+    scores: dict[ProjectType, float] = {
+        pt: 0.0 for pt in ProjectType if pt != ProjectType.UNKNOWN
+    }
     markers_found: list[str] = []
     markers_checked: list[str] = list(_get_all_markers())
 

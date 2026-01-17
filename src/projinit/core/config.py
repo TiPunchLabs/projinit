@@ -109,7 +109,9 @@ def save_global_config(config: ProjInitConfig) -> None:
 
     data = _config_to_dict(config)
     with open(GLOBAL_CONFIG_FILE, "w", encoding="utf-8") as f:
-        yaml.dump(data, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+        yaml.dump(
+            data, f, default_flow_style=False, allow_unicode=True, sort_keys=False
+        )
 
 
 def get_config_paths() -> dict[str, Path]:
@@ -155,7 +157,9 @@ def _merge_config(base: ProjInitConfig, overlay: dict) -> ProjInitConfig:
             if "disabled_checks" in standards:
                 base.standards.disabled_checks.extend(standards["disabled_checks"])
             if "extra_precommit_hooks" in standards:
-                base.standards.extra_precommit_hooks.extend(standards["extra_precommit_hooks"])
+                base.standards.extra_precommit_hooks.extend(
+                    standards["extra_precommit_hooks"]
+                )
 
     # Templates
     if "templates" in overlay:
@@ -214,7 +218,7 @@ def _config_to_dict(config: ProjInitConfig) -> dict:
 
 def generate_example_config() -> str:
     """Generate an example configuration file content."""
-    return '''# projinit configuration
+    return """# projinit configuration
 # Place this file at ~/.config/projinit/config.yaml (global)
 # or .projinit.yaml in your project root (local override)
 
@@ -255,4 +259,4 @@ templates:
   # Override specific templates
   overrides: {}
     # README.md.j2: ~/.config/projinit/templates/my-readme.j2
-'''
+"""

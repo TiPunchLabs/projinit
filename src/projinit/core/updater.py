@@ -10,7 +10,6 @@ from projinit.core.merger import merge_precommit_config, merge_toml_section
 from projinit.core.models import (
     ActionType,
     AuditReport,
-    CheckLevel,
     CheckStatus,
     MergeStrategy,
     ProjectType,
@@ -111,7 +110,9 @@ class Updater:
                 return check
         return None
 
-    def _create_action_for_check(self, check_def: dict, check_result) -> UpdateAction | None:
+    def _create_action_for_check(
+        self, check_def: dict, check_result
+    ) -> UpdateAction | None:
         """Create an update action for a failed check."""
         check_type = check_def.get("type")
         path = check_def.get("path", "")
@@ -193,7 +194,9 @@ class Updater:
         target = action.target
 
         # Check if it's a directory creation
-        if action.source is None and not str(target).endswith(('.yaml', '.yml', '.toml', '.md', '.txt', '.json')):
+        if action.source is None and not str(target).endswith(
+            (".yaml", ".yml", ".toml", ".md", ".txt", ".json")
+        ):
             # Probably a directory
             target.mkdir(parents=True, exist_ok=True)
             return True

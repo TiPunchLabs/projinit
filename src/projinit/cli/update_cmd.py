@@ -114,7 +114,9 @@ def run_update(args: argparse.Namespace) -> int:
     actions = updater.generate_actions(report)
 
     if not actions:
-        console.print("[yellow]No automatic fixes available for the detected issues.[/yellow]")
+        console.print(
+            "[yellow]No automatic fixes available for the detected issues.[/yellow]"
+        )
         console.print("[dim]Some issues may require manual intervention.[/dim]")
         return 1
 
@@ -173,7 +175,9 @@ def _display_actions(actions: list, dry_run: bool) -> None:
     }
 
     for action in actions:
-        action_str = action_styles.get(action.action_type, str(action.action_type.value))
+        action_str = action_styles.get(
+            action.action_type, str(action.action_type.value)
+        )
         target = str(action.target.relative_to(action.target.parent.parent))
         table.add_row(action_str, target, action.description)
 

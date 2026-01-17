@@ -81,9 +81,7 @@ def parse_args() -> argparse.Namespace:
     subparsers.add_parser(
         "version", help="Affiche les informations de version détaillées"
     )
-    subparsers.add_parser(
-        "init", help="Initialise un nouveau projet (mode interactif)"
-    )
+    subparsers.add_parser("init", help="Initialise un nouveau projet (mode interactif)")
     add_check_parser(subparsers)
     add_update_parser(subparsers)
     add_init_parser(subparsers)  # projinit new (v2.0)

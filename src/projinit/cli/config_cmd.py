@@ -140,12 +140,16 @@ def _show_config(args: argparse.Namespace) -> int:
         console.print("  Check overrides: [dim]none[/dim]")
 
     if config.standards.disabled_checks:
-        console.print(f"  Disabled checks: {', '.join(config.standards.disabled_checks)}")
+        console.print(
+            f"  Disabled checks: {', '.join(config.standards.disabled_checks)}"
+        )
     else:
         console.print("  Disabled checks: [dim]none[/dim]")
 
     if config.standards.extra_precommit_hooks:
-        console.print(f"  Extra hooks: {len(config.standards.extra_precommit_hooks)} configured")
+        console.print(
+            f"  Extra hooks: {len(config.standards.extra_precommit_hooks)} configured"
+        )
     else:
         console.print("  Extra hooks: [dim]none[/dim]")
     console.print()
@@ -214,8 +218,12 @@ def _show_paths() -> int:
         console.print(f"  {name}: {path} ({exists})")
 
     console.print()
-    console.print("[dim]Hint: Use 'projinit config init --global' to create global config[/dim]")
-    console.print("[dim]      Use 'projinit config init --local' to create local config[/dim]")
+    console.print(
+        "[dim]Hint: Use 'projinit config init --global' to create global config[/dim]"
+    )
+    console.print(
+        "[dim]      Use 'projinit config init --local' to create local config[/dim]"
+    )
     console.print()
 
     return 0
@@ -223,7 +231,9 @@ def _show_paths() -> int:
 
 def main() -> None:
     """Standalone entry point."""
-    parser = argparse.ArgumentParser(prog="projinit config", description="Manage configuration")
+    parser = argparse.ArgumentParser(
+        prog="projinit config", description="Manage configuration"
+    )
     subparsers = parser.add_subparsers(dest="config_command")
 
     show_parser = subparsers.add_parser("show", help="Show configuration")

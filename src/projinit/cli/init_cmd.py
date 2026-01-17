@@ -86,8 +86,7 @@ def run_init(args: argparse.Namespace) -> int:
     console.print()
     console.print(
         Panel.fit(
-            "[bold]projinit new[/bold]\n"
-            "[dim]Create a new project from standards[/dim]",
+            "[bold]projinit new[/bold]\n[dim]Create a new project from standards[/dim]",
             border_style="blue",
         )
     )
@@ -173,7 +172,8 @@ def _ask_project_name() -> str | None:
     """Prompt for project name."""
     return questionary.text(
         "Project name:",
-        validate=lambda val: _is_valid_slug(val) or "Use lowercase letters, numbers, and hyphens",
+        validate=lambda val: _is_valid_slug(val)
+        or "Use lowercase letters, numbers, and hyphens",
     ).ask()
 
 
@@ -182,8 +182,12 @@ def _ask_project_type() -> ProjectType | None:
     choices = [
         questionary.Choice("Python CLI Application", value=ProjectType.PYTHON_CLI),
         questionary.Choice("Python Library", value=ProjectType.PYTHON_LIB),
-        questionary.Choice("Node.js Frontend (React/Vue)", value=ProjectType.NODE_FRONTEND),
-        questionary.Choice("Infrastructure (Terraform + Ansible)", value=ProjectType.INFRASTRUCTURE),
+        questionary.Choice(
+            "Node.js Frontend (React/Vue)", value=ProjectType.NODE_FRONTEND
+        ),
+        questionary.Choice(
+            "Infrastructure (Terraform + Ansible)", value=ProjectType.INFRASTRUCTURE
+        ),
         questionary.Choice("Documentation (MkDocs)", value=ProjectType.DOCUMENTATION),
     ]
     return questionary.select("Project type:", choices=choices).ask()
@@ -227,13 +231,28 @@ def _display_summary(
 
 def _get_files_for_type(project_type: ProjectType) -> list[str]:
     """Get list of files that will be created for a project type."""
-    common = ["README.md", "LICENSE", ".gitignore", "CLAUDE.md", ".pre-commit-config.yaml"]
+    common = [
+        "README.md",
+        "LICENSE",
+        ".gitignore",
+        "CLAUDE.md",
+        ".pre-commit-config.yaml",
+    ]
 
     type_specific = {
-        ProjectType.PYTHON_CLI: ["pyproject.toml", "src/<name>/__init__.py", "src/<name>/cli.py", "tests/"],
+        ProjectType.PYTHON_CLI: [
+            "pyproject.toml",
+            "src/<name>/__init__.py",
+            "src/<name>/cli.py",
+            "tests/",
+        ],
         ProjectType.PYTHON_LIB: ["pyproject.toml", "src/<name>/__init__.py", "tests/"],
         ProjectType.NODE_FRONTEND: ["package.json", "tsconfig.json", "src/", "public/"],
-        ProjectType.INFRASTRUCTURE: ["terraform/main.tf", "terraform/variables.tf", "ansible/playbook.yml"],
+        ProjectType.INFRASTRUCTURE: [
+            "terraform/main.tf",
+            "terraform/variables.tf",
+            "ansible/playbook.yml",
+        ],
         ProjectType.DOCUMENTATION: ["mkdocs.yml", "pyproject.toml", "docs/index.md"],
     }
 
@@ -354,7 +373,9 @@ def _generate_python_project(
     src_dir.mkdir(parents=True, exist_ok=True)
 
     # __init__.py
-    (src_dir / "__init__.py").write_text(f'"""{ context["project_name"] } package."""\n\n__version__ = "0.1.0"\n')
+    (src_dir / "__init__.py").write_text(
+        f'"""{context["project_name"]} package."""\n\n__version__ = "0.1.0"\n'
+    )
 
     # cli.py for CLI projects
     if project_type == ProjectType.PYTHON_CLI:
@@ -432,30 +453,31 @@ def _generate_node_project(env: Environment, target_dir: Path, context: dict) ->
     src_dir.mkdir(exist_ok=True)
 
     # Basic index.tsx
-    (src_dir / "main.tsx").write_text('''import React from 'react'
+    project_name = context["project_name"]
+    (src_dir / "main.tsx").write_text(f"""import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-function App() {
+function App() {{
   return (
     <div>
-      <h1>Hello from {name}!</h1>
+      <h1>Hello from {project_name}!</h1>
     </div>
   )
-}
+}}
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
 )
-'''.format(name=context["project_name"]))
+""")
 
     # Create public directory
     public_dir = target_dir / "public"
     public_dir.mkdir(exist_ok=True)
 
     # index.html
-    (target_dir / "index.html").write_text(f'''<!DOCTYPE html>
+    (target_dir / "index.html").write_text(f"""<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -467,16 +489,16 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-''')
+""")
 
     # vite.config.ts
-    (target_dir / "vite.config.ts").write_text('''import { defineConfig } from 'vite'
+    (target_dir / "vite.config.ts").write_text("""import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
 })
-''')
+""")
 
 
 def _generate_infra_project(env: Environment, target_dir: Path, context: dict) -> None:
@@ -506,7 +528,7 @@ def _generate_infra_project(env: Environment, target_dir: Path, context: dict) -
     (ansible_dir / "inventory").mkdir(exist_ok=True)
 
     # Basic playbook
-    (ansible_dir / "playbook.yml").write_text(f'''---
+    (ansible_dir / "playbook.yml").write_text(f"""---
 - name: {context["project_name"]} playbook
   hosts: all
   become: true
@@ -515,15 +537,15 @@ def _generate_infra_project(env: Environment, target_dir: Path, context: dict) -
     - name: Example task
       ansible.builtin.debug:
         msg: "Hello from {context["project_name"]}!"
-''')
+""")
 
     # Inventory file
-    (ansible_dir / "inventory" / "hosts.yml").write_text('''---
+    (ansible_dir / "inventory" / "hosts.yml").write_text("""---
 all:
   hosts:
     localhost:
       ansible_connection: local
-''')
+""")
 
 
 def _generate_docs_project(env: Environment, target_dir: Path, context: dict) -> None:
@@ -541,7 +563,7 @@ def _generate_docs_project(env: Environment, target_dir: Path, context: dict) ->
     docs_dir.mkdir(exist_ok=True)
 
     # index.md
-    (docs_dir / "index.md").write_text(f'''# {context["project_name"]}
+    (docs_dir / "index.md").write_text(f"""# {context["project_name"]}
 
 {context["description"]}
 
@@ -563,14 +585,21 @@ uv run mkdocs serve
 
 - `docs/` - Documentation source files
 - `mkdocs.yml` - MkDocs configuration
-''')
+""")
 
 
 def _init_git(target_dir: Path) -> bool:
     """Initialize git repository."""
     try:
-        subprocess.run(["git", "init", "-b", "main"], cwd=target_dir, capture_output=True, check=True)
-        subprocess.run(["git", "add", "."], cwd=target_dir, capture_output=True, check=True)
+        subprocess.run(
+            ["git", "init", "-b", "main"],
+            cwd=target_dir,
+            capture_output=True,
+            check=True,
+        )
+        subprocess.run(
+            ["git", "add", "."], cwd=target_dir, capture_output=True, check=True
+        )
         subprocess.run(
             ["git", "commit", "-m", "Initial commit - project scaffolding"],
             cwd=target_dir,
@@ -607,10 +636,14 @@ def _display_next_steps(project_name: str, project_type: ProjectType) -> None:
 
 def main() -> None:
     """Standalone entry point."""
-    parser = argparse.ArgumentParser(prog="projinit new", description="Create a new project")
+    parser = argparse.ArgumentParser(
+        prog="projinit new", description="Create a new project"
+    )
     parser.add_argument("name", type=str, nargs="?", help="Project name")
     parser.add_argument(
-        "-t", "--type", type=str,
+        "-t",
+        "--type",
+        type=str,
         choices=[pt.value for pt in ProjectType if pt != ProjectType.UNKNOWN],
         help="Project type",
     )
