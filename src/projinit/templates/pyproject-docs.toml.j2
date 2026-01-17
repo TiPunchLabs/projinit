@@ -1,0 +1,20 @@
+[project]
+name = "{{ project_name }}"
+version = "0.1.0"
+description = "{{ description }}"
+readme = "README.md"
+requires-python = ">={{ python_version | default('3.11') }}"
+dependencies = [
+    "mkdocs-material>=9.5",
+    "mkdocs-awesome-pages-plugin>=2.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mkdocs-minify-plugin>=0.8",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "mkdocs-minify-plugin>=0.8",
+]

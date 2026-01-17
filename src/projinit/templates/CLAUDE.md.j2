@@ -1,0 +1,123 @@
+# {{ project_name }}
+
+{% if description %}
+{{ description }}
+{% endif %}
+
+## Project Type
+
+{{ project_type_display }}
+
+## Commands
+
+{% if project_type == "python-cli" or project_type == "python-lib" %}
+```bash
+# Install dependencies
+uv sync
+
+# Run tests
+uv run pytest
+
+# Lint code
+uv run ruff check .
+
+# Format code
+uv run ruff format .
+```
+{% elif project_type == "node-frontend" %}
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Run tests
+npm test
+
+# Lint code
+npm run lint
+```
+{% elif project_type == "infrastructure" %}
+```bash
+# Initialize Terraform
+cd terraform && terraform init
+
+# Plan changes
+terraform plan
+
+# Apply changes
+terraform apply
+
+# Run Ansible playbook
+cd ansible && ansible-playbook -i inventory playbook.yml
+```
+{% elif project_type == "documentation" %}
+```bash
+# Install dependencies
+uv sync
+
+# Serve documentation locally
+uv run mkdocs serve
+
+# Build documentation
+uv run mkdocs build
+```
+{% else %}
+```bash
+# Add your commands here
+```
+{% endif %}
+
+## Structure
+
+{% if project_type == "python-cli" or project_type == "python-lib" %}
+```
+src/{{ project_name_snake }}/    # Source code
+tests/                           # Test files
+pyproject.toml                   # Project configuration
+```
+{% elif project_type == "node-frontend" %}
+```
+src/                             # Source code
+  components/                    # React/Vue components
+  pages/                         # Page components
+public/                          # Static assets
+package.json                     # Project configuration
+```
+{% elif project_type == "infrastructure" %}
+```
+terraform/                       # Terraform configuration
+  main.tf                        # Main resources
+  variables.tf                   # Input variables
+  outputs.tf                     # Output values
+ansible/                         # Ansible playbooks
+  inventory/                     # Inventory files
+  playbook.yml                   # Main playbook
+```
+{% elif project_type == "documentation" %}
+```
+docs/                            # Documentation source
+  index.md                       # Home page
+mkdocs.yml                       # MkDocs configuration
+```
+{% endif %}
+
+## Code Style
+
+{% if project_type == "python-cli" or project_type == "python-lib" %}
+- Python {{ python_version | default("3.10") }}+
+- Ruff for linting and formatting
+- Type hints encouraged
+{% elif project_type == "node-frontend" %}
+- TypeScript preferred
+- ESLint for linting
+- Prettier for formatting
+{% elif project_type == "infrastructure" %}
+- Terraform fmt for formatting
+- tflint for linting
+- ansible-lint for Ansible
+{% endif %}
