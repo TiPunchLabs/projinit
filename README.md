@@ -77,9 +77,10 @@ projinit check -v
 Types de projets supportes :
 - `python-cli` : Application CLI Python
 - `python-lib` : Bibliotheque Python
-- `node-frontend` : Application frontend Node.js
+- `node-frontend` : Application frontend Node.js (React, Vue, Vite, PWA)
 - `infrastructure` : Projet Terraform/Ansible
 - `documentation` : Documentation MkDocs
+- `lab` : Lab/Tutorial (exercices, solutions, dojos)
 
 ### Corriger automatiquement
 
@@ -115,7 +116,26 @@ projinit new mon-projet -t python-cli -d "Description du projet" -y
 
 # Dans un dossier specifique
 projinit new mon-projet -p /path/to/parent
+
+# Avec direnv + pass pour les secrets
+projinit new mon-projet --direnv
 ```
+
+### Gestion des secrets avec direnv
+
+projinit supporte l'integration avec [direnv](https://direnv.net/) et [pass](https://www.passwordstore.org/) pour une gestion securisee des secrets :
+
+```bash
+# Activer direnv lors de la creation
+projinit new mon-projet --direnv
+
+# Le fichier .envrc genere utilise pass :
+# export API_KEY=$(pass show projects/secrets/mon-projet/api-key)
+```
+
+Prerequis :
+- `direnv` installe et configure dans le shell
+- `pass` (password-store) installe et initialise
 
 ### Gerer la configuration
 
@@ -198,6 +218,9 @@ templates:
 | `has_src_dir` | Structure src/ (Python) |
 | `has_tests_dir` | Repertoire tests/ |
 | `has_ruff_config` | Configuration Ruff (Python) |
+| `envrc_uses_pass` | .envrc utilise pass pour les secrets |
+| `has_vite_config` | Configuration Vite (Node.js) |
+| `has_eslint_config` | Configuration ESLint (Node.js) |
 
 ## Exemple de workflow
 

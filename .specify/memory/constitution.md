@@ -39,18 +39,47 @@ Les tokens GitHub ne sont jamais stockés en clair dans le projet. L'intégratio
 
 ## Architecture
 
-### Structure des Modules
+### Structure des Modules (v2.0)
 ```
 src/projinit/
-├── cli.py          → Point d'entrée, orchestration du workflow
-├── config.py       → Chargement et parsing de la configuration
-├── validators.py   → Validation des entrées utilisateur
-├── checks.py       → Vérification des dépendances système
-├── generator.py    → Génération des fichiers projet
-└── templates/      → Templates Jinja2
-    ├── gitignore/  → Templates .gitignore par technologie
-    └── precommit/  → Templates pre-commit par technologie
+├── __init__.py         → Version et metadata
+├── cli/                → Commandes CLI
+│   ├── main.py         → Point d'entrée principal
+│   ├── check_cmd.py    → Commande audit (projinit check)
+│   ├── update_cmd.py   → Commande correction (projinit update)
+│   ├── init_cmd.py     → Commande création (projinit new)
+│   └── config_cmd.py   → Commande configuration (projinit config)
+├── core/               → Logique métier
+│   ├── models.py       → Modèles de données (ProjectType, CheckResult, etc.)
+│   ├── detector.py     → Détection automatique du type de projet
+│   ├── checker.py      → Vérification de conformité
+│   ├── updater.py      → Correction automatique
+│   ├── config.py       → Gestion de la configuration
+│   └── reporter.py     → Génération des rapports
+├── standards/          → Standards externalisés
+│   ├── loader.py       → Chargeur de standards YAML
+│   └── defaults/       → Standards par défaut
+│       ├── base.yaml   → Checks communs à tous les types
+│       ├── python.yaml → Standards Python (CLI/Lib)
+│       ├── node.yaml   → Standards Node.js (React/Vite/PWA)
+│       ├── infra.yaml  → Standards Infrastructure (Terraform/Ansible)
+│       ├── documentation.yaml → Standards Documentation (MkDocs)
+│       └── lab.yaml    → Standards Lab/Tutorial
+└── templates/          → Templates Jinja2
+    ├── gitignore/      → Templates .gitignore par technologie
+    └── precommit/      → Templates pre-commit par technologie
 ```
+
+### Types de Projets Supportés (v2.0)
+
+| Type | Description | Standards |
+|------|-------------|-----------|
+| `python-cli` | Application CLI Python | pyproject.toml, src/, tests/, ruff |
+| `python-lib` | Bibliothèque Python | pyproject.toml, src/, tests/, py.typed |
+| `node-frontend` | Frontend Node.js (React/Vue/Vite/PWA) | package.json, src/, tsconfig, eslint |
+| `infrastructure` | IaC Terraform + Ansible | main.tf, variables.tf, playbook.yml |
+| `documentation` | Documentation MkDocs | mkdocs.yml, docs/, pyproject.toml |
+| `lab` | Lab/Tutorial/Dojo | labs/, exercises/, solutions/, README |
 
 ### Technologies Supportées
 La sélection des technologies est organisée en catégories pour une meilleure UX :
@@ -97,15 +126,65 @@ Chaque technologie dispose d'un template `.gitignore` dédié. Les technologies 
 ## Qualité et Tests
 
 ### Standards de Qualité
-- Code modulaire avec responsabilités séparées
-- Gestion explicite des erreurs avec messages utilisateur clairs
-- Validation des entrées à toutes les frontières
-- Échappement approprié pour la génération HCL
 
-### Tests (À Implémenter)
-- Tests unitaires pour chaque module (validators, config, generator)
-- Tests d'intégration pour le workflow complet
-- Tests des templates avec différentes combinaisons de paramètres
+#### Analyse Statique (automatisée, bloquante)
+- **Linting**: `ruff check` — zéro erreur, zéro warning
+- **Formatage**: `ruff format` — code formaté avant commit
+- **Type checking**: type hints validés (mypy optionnel mais recommandé)
+
+#### Limites de Complexité
+- Complexité cyclomatique: < 10 par fonction
+- Longueur fonction: < 50 lignes (hors docstrings/commentaires)
+- Longueur fichier: < 300 lignes (découper si dépassement)
+- Profondeur d'imbrication: < 4 niveaux
+
+#### DRY & Maintenabilité
+- Aucun bloc dupliqué > 5 lignes — extraire en fonction/module
+- Single Responsibility: une fonction = une tâche
+- Pas de magic numbers/strings — utiliser des constantes nommées
+- Docstrings obligatoires pour les fonctions publiques
+
+#### Sécurité
+- Aucun secret dans le code (tokens, mots de passe)
+- Variables sensibles via environnement ou pass/direnv
+- Validation des entrées utilisateur à toutes les frontières
+- Échappement systématique pour la génération HCL (`hcl_escape`)
+
+#### Gestion de la Dette Technique
+- TODO interdit sans format: `TODO(#issue): description`
+- Code mort supprimé, jamais commenté
+- Pas de `# type: ignore` sans justification
+
+### Tests
+
+#### Couverture Requise
+- Minimum: 80% lignes, 70% branches
+- Modules critiques (validators, generator): 90%+
+
+#### Types de Tests
+| Type | Scope | Outils |
+|------|-------|--------|
+| Unitaires | Chaque module isolé | pytest |
+| Intégration | Workflow CLI complet | pytest + tmp_path |
+| Templates | Combinaisons de paramètres | pytest + snapshots |
+
+#### Bonnes Pratiques Tests
+- Nommage: `test_<fonction>_<scenario>_<resultat_attendu>`
+- Fixtures partagées dans `conftest.py`
+- Pas de tests skippés sans issue liée
+- Mocks limités aux frontières externes (GitHub API, filesystem)
+
+### Quality Gate Checklist
+
+Avant de marquer une tâche comme terminée, vérifier :
+
+- [ ] `ruff check` passe sans erreur
+- [ ] `ruff format --check` passe
+- [ ] Tests écrits et passants (`pytest`)
+- [ ] Aucun warning nouveau introduit
+- [ ] Docstrings ajoutées si fonction publique
+- [ ] Pas de secrets ou valeurs hardcodées
+- [ ] Type hints présents sur les signatures
 
 ## Intégration Continue (CI)
 
@@ -136,4 +215,4 @@ Cette constitution définit les principes fondateurs de projinit. Toute modifica
 3. Extensibilité via les templates
 4. Compatibilité avec l'écosystème Terraform
 
-**Version**: 1.2.0 | **Ratified**: 2025-12-02 | **Last Amended**: 2025-12-18
+**Version**: 1.3.0 | **Ratified**: 2025-12-02 | **Last Amended**: 2026-01-17
