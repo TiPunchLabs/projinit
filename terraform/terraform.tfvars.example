@@ -1,0 +1,5 @@
+# GitHub configuration
+# Copy this file to terraform.tfvars and fill in the values
+
+github_token = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+github_owner = "your-github-username"
