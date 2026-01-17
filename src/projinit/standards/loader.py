@@ -10,19 +10,26 @@ from projinit.core.models import ProjectType
 DEFAULTS_DIR = Path(__file__).parent / "defaults"
 
 
-def load_standards(project_type: ProjectType) -> dict:
+def load_standards(
+    project_type: ProjectType,
+    project_path: Path | None = None,
+) -> dict:
     """
     Load standards for a given project type.
 
-    Loads base standards plus type-specific standards.
-    Supports hierarchy: defaults < global (~/.config/projinit) < local (.projinit.yaml)
+    Loads base standards plus type-specific standards, then applies
+    configuration overrides from global and local config files.
 
     Args:
         project_type: The detected or specified project type.
+        project_path: Path to project for loading local config.
 
     Returns:
         Merged standards dictionary with all applicable checks.
     """
+    # Import here to avoid circular imports
+    from projinit.core.config import load_config
+
     standards = {"checks": [], "precommit_hooks": []}
 
     # Load base standards (always)
@@ -46,8 +53,43 @@ def load_standards(project_type: ProjectType) -> dict:
             type_standards = _load_yaml(type_path)
             standards = _merge_standards(standards, type_standards)
 
-    # TODO: Load global config from ~/.config/projinit/standards.yaml
-    # TODO: Load local config from .projinit.yaml
+    # Apply configuration overrides
+    config = load_config(project_path)
+    standards = _apply_config_overrides(standards, config)
+
+    return standards
+
+
+def _apply_config_overrides(standards: dict, config) -> dict:
+    """Apply configuration overrides to standards."""
+    # Apply check level overrides
+    for check in standards.get("checks", []):
+        check_id = check.get("id")
+        if check_id and check_id in config.standards.check_overrides:
+            new_level = config.standards.check_overrides[check_id]
+            if new_level in ("required", "recommended", "optional"):
+                check["level"] = new_level
+
+    # Remove disabled checks
+    if config.standards.disabled_checks:
+        standards["checks"] = [
+            c for c in standards.get("checks", [])
+            if c.get("id") not in config.standards.disabled_checks
+        ]
+
+    # Add extra checks
+    if config.standards.extra_checks:
+        for extra_check in config.standards.extra_checks:
+            if extra_check.get("id"):
+                # Avoid duplicates
+                existing_ids = {c.get("id") for c in standards.get("checks", [])}
+                if extra_check["id"] not in existing_ids:
+                    standards.setdefault("checks", []).append(extra_check)
+
+    # Add extra pre-commit hooks
+    if config.standards.extra_precommit_hooks:
+        for hook in config.standards.extra_precommit_hooks:
+            standards.setdefault("precommit_hooks", []).append(hook)
 
     return standards
 
