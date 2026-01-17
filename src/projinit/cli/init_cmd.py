@@ -2,6 +2,7 @@
 
 import argparse
 import re
+import shutil
 import subprocess
 import sys
 from datetime import datetime
@@ -16,6 +17,9 @@ from rich.table import Table
 from projinit.core.models import ProjectType
 
 console = Console()
+
+# Default path for secrets in pass
+DEFAULT_PASS_SECRET_PATH = "projects/secrets"
 
 
 def add_init_parser(subparsers: argparse._SubParsersAction) -> None:
@@ -68,6 +72,17 @@ def add_init_parser(subparsers: argparse._SubParsersAction) -> None:
         "--verbose",
         action="store_true",
         help="Show detailed information",
+    )
+    init_parser.add_argument(
+        "--direnv",
+        action="store_true",
+        default=None,
+        help="Enable direnv + pass for secrets management",
+    )
+    init_parser.add_argument(
+        "--no-direnv",
+        action="store_true",
+        help="Disable direnv + pass",
     )
     init_parser.set_defaults(func=run_init)
 
@@ -123,6 +138,19 @@ def run_init(args: argparse.Namespace) -> int:
     else:
         description = _ask_description(project_name)
 
+    # Get direnv preference
+    use_direnv = False
+    if args.no_direnv:
+        use_direnv = False
+    elif args.direnv:
+        use_direnv = True
+    elif not args.yes:
+        use_direnv = _ask_direnv()
+
+    # Validate direnv requirements if enabled
+    if use_direnv and not _check_direnv_requirements():
+        return 1
+
     # Determine target directory
     parent_path = Path(args.path).resolve()
     target_dir = parent_path / project_name
@@ -133,7 +161,7 @@ def run_init(args: argparse.Namespace) -> int:
         return 1
 
     # Show summary
-    _display_summary(project_name, project_type, description, target_dir)
+    _display_summary(project_name, project_type, description, target_dir, use_direnv)
 
     # Confirm (skip if --yes)
     if not args.yes:
@@ -150,6 +178,7 @@ def run_init(args: argparse.Namespace) -> int:
             project_type=project_type,
             description=description,
             target_dir=target_dir,
+            use_direnv=use_direnv,
         )
 
     if not success:
@@ -161,9 +190,14 @@ def run_init(args: argparse.Namespace) -> int:
         with console.status("[bold blue]Initializing git...[/bold blue]"):
             _init_git(target_dir)
 
+    # Allow direnv if enabled
+    if use_direnv:
+        with console.status("[bold blue]Configuring direnv...[/bold blue]"):
+            _allow_direnv(target_dir)
+
     console.print()
     console.print(f"[green]Project '{project_name}' created successfully![/green]")
-    _display_next_steps(project_name, project_type)
+    _display_next_steps(project_name, project_type, use_direnv)
 
     return 0
 
@@ -199,6 +233,32 @@ def _ask_description(project_name: str) -> str:
     return description if description else f"Project {project_name}"
 
 
+def _ask_direnv() -> bool:
+    """Prompt for direnv + pass activation."""
+    return questionary.confirm(
+        "Enable direnv + pass for secrets management?",
+        default=False,
+    ).ask() or False
+
+
+def _check_direnv_requirements() -> bool:
+    """Check if direnv and pass are installed."""
+    # Check direnv
+    if shutil.which("direnv") is None:
+        console.print("[red]direnv is not installed[/red]")
+        console.print("[dim]Install with: sudo apt install direnv[/dim]")
+        console.print("[dim]Then add to your shell: eval \"$(direnv hook bash)\"[/dim]")
+        return False
+
+    # Check pass
+    if shutil.which("pass") is None:
+        console.print("[red]pass (password-store) is not installed[/red]")
+        console.print("[dim]Install with: sudo apt install pass[/dim]")
+        return False
+
+    return True
+
+
 def _is_valid_slug(name: str) -> bool:
     """Check if name is a valid project slug."""
     return bool(re.match(r"^[a-z][a-z0-9-]*$", name))
@@ -209,6 +269,7 @@ def _display_summary(
     project_type: ProjectType,
     description: str,
     target_dir: Path,
+    use_direnv: bool = False,
 ) -> None:
     """Display project summary before creation."""
     console.print()
@@ -217,6 +278,7 @@ def _display_summary(
     console.print(f"  Type: [cyan]{project_type.display_name}[/cyan]")
     console.print(f"  Path: [cyan]{target_dir}[/cyan]")
     console.print(f"  Description: [cyan]{description}[/cyan]")
+    console.print(f"  Direnv: [cyan]{'yes' if use_direnv else 'no'}[/cyan]")
     console.print()
 
     # Show files that will be created
@@ -264,6 +326,7 @@ def _generate_project(
     project_type: ProjectType,
     description: str,
     target_dir: Path,
+    use_direnv: bool = False,
 ) -> bool:
     """Generate project files based on type."""
     try:
@@ -282,13 +345,14 @@ def _generate_project(
             "description": description,
             "year": datetime.now().year,
             "python_version": "3.10",
+            "use_direnv": use_direnv,
         }
 
         # Create base directory
         target_dir.mkdir(parents=True, exist_ok=True)
 
         # Generate common files
-        _generate_common_files(env, target_dir, context, project_type)
+        _generate_common_files(env, target_dir, context, project_type, use_direnv)
 
         # Generate type-specific files
         if project_type in (ProjectType.PYTHON_CLI, ProjectType.PYTHON_LIB):
@@ -311,6 +375,7 @@ def _generate_common_files(
     target_dir: Path,
     context: dict,
     project_type: ProjectType,
+    use_direnv: bool = False,
 ) -> None:
     """Generate files common to all project types."""
     # README.md
@@ -353,6 +418,10 @@ def _generate_common_files(
         except Exception:
             pass
     (target_dir / ".pre-commit-config.yaml").write_text(precommit_content)
+
+    # .envrc for direnv + pass
+    if use_direnv:
+        _generate_envrc(target_dir, context)
 
 
 def _generate_python_project(
@@ -588,6 +657,44 @@ uv run mkdocs serve
 """)
 
 
+def _generate_envrc(target_dir: Path, context: dict) -> None:
+    """Generate .envrc file for direnv + pass integration."""
+    project_name = context["project_name"]
+    secret_path = f"{DEFAULT_PASS_SECRET_PATH}/{project_name}"
+
+    envrc_content = f"""# Environment variables managed by direnv + pass
+# Secrets are stored in pass at: {secret_path}
+
+# Example: Load a secret from pass
+# export API_KEY=$(pass show {secret_path}/api-key)
+
+# Project-specific environment
+export PROJECT_NAME="{project_name}"
+
+# Add project bin to PATH (if applicable)
+# PATH_add bin
+
+# Python virtual environment (uncomment if using venv)
+# layout python3
+"""
+    (target_dir / ".envrc").write_text(envrc_content)
+
+
+def _allow_direnv(target_dir: Path) -> bool:
+    """Allow direnv for the project directory."""
+    try:
+        subprocess.run(
+            ["direnv", "allow"],
+            cwd=target_dir,
+            capture_output=True,
+            check=True,
+        )
+        return True
+    except subprocess.CalledProcessError as e:
+        console.print(f"[yellow]Warning: direnv allow failed: {e}[/yellow]")
+        return False
+
+
 def _init_git(target_dir: Path) -> bool:
     """Initialize git repository."""
     try:
@@ -611,25 +718,35 @@ def _init_git(target_dir: Path) -> bool:
         return False
 
 
-def _display_next_steps(project_name: str, project_type: ProjectType) -> None:
+def _display_next_steps(
+    project_name: str, project_type: ProjectType, use_direnv: bool = False
+) -> None:
     """Display next steps after project creation."""
     console.print()
     console.print("[bold]Next steps:[/bold]")
     console.print()
     console.print(f"  [dim]1.[/dim] cd {project_name}")
 
+    step = 2
+    if use_direnv:
+        console.print(
+            f"  [dim]{step}.[/dim] Configure secrets in pass: "
+            f"pass insert {DEFAULT_PASS_SECRET_PATH}/{project_name}/api-key"
+        )
+        step += 1
+
     if project_type in (ProjectType.PYTHON_CLI, ProjectType.PYTHON_LIB):
-        console.print("  [dim]2.[/dim] uv sync")
-        console.print("  [dim]3.[/dim] uv run pytest")
+        console.print(f"  [dim]{step}.[/dim] uv sync")
+        console.print(f"  [dim]{step + 1}.[/dim] uv run pytest")
     elif project_type == ProjectType.NODE_FRONTEND:
-        console.print("  [dim]2.[/dim] npm install")
-        console.print("  [dim]3.[/dim] npm run dev")
+        console.print(f"  [dim]{step}.[/dim] npm install")
+        console.print(f"  [dim]{step + 1}.[/dim] npm run dev")
     elif project_type == ProjectType.INFRASTRUCTURE:
-        console.print("  [dim]2.[/dim] cd terraform && terraform init")
-        console.print("  [dim]3.[/dim] terraform plan")
+        console.print(f"  [dim]{step}.[/dim] cd terraform && terraform init")
+        console.print(f"  [dim]{step + 1}.[/dim] terraform plan")
     elif project_type == ProjectType.DOCUMENTATION:
-        console.print("  [dim]2.[/dim] uv sync")
-        console.print("  [dim]3.[/dim] uv run mkdocs serve")
+        console.print(f"  [dim]{step}.[/dim] uv sync")
+        console.print(f"  [dim]{step + 1}.[/dim] uv run mkdocs serve")
 
     console.print()
 

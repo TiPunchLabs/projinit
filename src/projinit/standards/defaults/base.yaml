@@ -47,3 +47,13 @@ checks:
     patterns:
       - end-of-file-fixer
       - trailing-whitespace
+
+  # Security - direnv with pass for secrets
+  - id: envrc_uses_pass
+    description: .envrc should use pass for secure secrets management
+    level: recommended
+    type: content_contains
+    path: .envrc
+    patterns:
+      - "pass show"
+      - "pass "
