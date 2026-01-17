@@ -7,197 +7,268 @@
 ██╔═══╝ ██╔══██╗██║   ██║██   ██║██║██║╚██╗██║██║   ██║
 ██║     ██║  ██║╚██████╔╝╚█████╔╝██║██║ ╚████║██║   ██║
 ╚═╝     ╚═╝  ╚═╝ ╚═════╝  ╚════╝ ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝
-            Project Scaffolding with Terraform + GitHub
+         Project Lifecycle Management Tool v2.0
 ```
 
 [![CI](https://github.com/TiPunchLabs/projinit/actions/workflows/ci.yml/badge.svg)](https://github.com/TiPunchLabs/projinit/actions/workflows/ci.yml)
 
-> 🏗️ CLI pour générer la structure d'un projet avec configuration [Terraform](https://www.terraform.io/) + [GitHub](https://github.com/).
+> CLI pour initialiser, auditer et mettre a jour des projets selon des standards definis.
 
-> 🐧 **Linux first** — Conçu pour les environnements Linux. Peut fonctionner sur macOS, non testé sur Windows.
+> **Linux first** — Concu pour les environnements Linux. Peut fonctionner sur macOS, non teste sur Windows.
 
-## 🔗 Technologies
+## Fonctionnalites v2.0
 
-| Outil | Description |
-|-------|-------------|
-| [Terraform](https://www.terraform.io/docs) | Infrastructure as Code |
-| [GitHub Provider](https://registry.terraform.io/providers/integrations/github/latest/docs) | Provider Terraform pour GitHub |
-| [uv](https://docs.astral.sh/uv/) | Package manager Python ultra-rapide |
-| [direnv](https://direnv.net/) | Chargement automatique des variables d'environnement |
-| [pass](https://www.passwordstore.org/) | Gestionnaire de mots de passe Unix |
+| Commande | Description |
+|----------|-------------|
+| `projinit check` | Auditer la conformite d'un projet |
+| `projinit update` | Corriger automatiquement les non-conformites |
+| `projinit new` | Creer un nouveau projet selon les standards |
+| `projinit config` | Gerer la configuration |
 
-## 📦 Installation
+## Installation
 
 ### Depuis les sources
 
 ```bash
-# Cloner le dépôt
+# Cloner le depot
 git clone https://github.com/xgueret/projinit.git
 cd projinit
 
-# Installer les dépendances
+# Installer les dependances
 uv sync
 
-# Copier et personnaliser la configuration
-cp config.example.yaml ~/.config/projinit/config.yaml
+# Lancer
+uv run projinit --version
 ```
 
-### Installation globale (recommandé)
+### Installation globale (recommande)
 
 ```bash
 # Installer comme outil global
-uv tool install /chemin/vers/projinit
-
-# Ou directement depuis GitHub
 uv tool install git+https://github.com/xgueret/projinit.git
 
-# Configurer (obligatoire)
-mkdir -p ~/.config/projinit
-curl -o ~/.config/projinit/config.yaml https://raw.githubusercontent.com/xgueret/projinit/main/config.example.yaml
-# Puis éditer ~/.config/projinit/config.yaml avec vos owners
+# Verifier l'installation
+projinit --version
 ```
 
-> ⚠️ **Important** : Sans fichier de configuration, le CLI utilisera des valeurs par défaut génériques.
+## Utilisation
 
-### 🔄 Mise à jour
+### Auditer un projet
+
+Verifier la conformite d'un projet existant aux standards definis :
 
 ```bash
-# Si installé depuis les sources
-cd /chemin/vers/projinit
-git pull
-uv sync
+# Audit du projet courant (type auto-detecte)
+projinit check
 
-# Si installé globalement depuis un dossier local
-uv tool upgrade projinit
+# Audit d'un projet specifique
+projinit check /path/to/project
 
-# Si installé depuis GitHub
-uv tool upgrade projinit --reinstall
+# Forcer le type de projet
+projinit check -t python-cli
+
+# Format de sortie (text, json, markdown)
+projinit check -f markdown > audit-report.md
+
+# Mode verbose (temps d'execution, fichiers scannes)
+projinit check -v
 ```
 
-> 💡 [uv](https://docs.astral.sh/uv/) est le gestionnaire de packages Python recommandé pour sa rapidité.
+Types de projets supportes :
+- `python-cli` : Application CLI Python
+- `python-lib` : Bibliotheque Python
+- `node-frontend` : Application frontend Node.js
+- `infrastructure` : Projet Terraform/Ansible
+- `documentation` : Documentation MkDocs
 
-## 🚀 Utilisation
+### Corriger automatiquement
+
+Appliquer les corrections automatiques pour atteindre la conformite :
 
 ```bash
-# Si installé globalement (génère dans le dossier courant)
-projinit
+# Correction automatique (avec backup)
+projinit update
 
-# Spécifier un chemin de destination
-projinit --path ~/mes-projets
+# Mode dry-run (voir sans appliquer)
+projinit update --dry-run
 
-# Depuis le dossier du projet projinit (après uv sync)
-uv run projinit
+# Mode interactif (confirmer chaque action)
+projinit update --interactive
 
-# Avec un chemin personnalisé
-uv run projinit -p /tmp/projets
+# Sans backup
+projinit update --no-backup
 ```
 
-### Options
+### Creer un nouveau projet
 
-| Option | Description |
-|--------|-------------|
-| `-p PATH`, `--path PATH` | Chemin de destination pour le projet (défaut: dossier courant) |
-| `-v`, `--version` | Affiche les informations de version détaillées avec banner ASCII |
-| `-h`, `--help` | Affiche l'aide |
-
-L'outil pose les questions suivantes de manière interactive :
-
-1. 📝 **Nom du projet** — en slug-case (ex: `mon-projet`)
-2. 💬 **Description** — optionnelle, auto-générée si vide
-3. 👤 **Owner GitHub** — configurable via fichier de config
-4. 👁️ **Visibilité** — `public` ou `private`
-5. 🔐 **Direnv + pass** — pour la gestion sécurisée du token
-6. 🛠️ **Technologies** — sélection multiple organisée par catégories :
-   - **Langages** : Python, Node.js, Go, Rust, Java/Kotlin
-   - **Front-end** : HTML/CSS, React, Vue.js, Angular, Svelte, Next.js/Nuxt.js
-   - **Infrastructure** : Terraform, Pulumi, Kubernetes/Helm
-   - **Conteneurs** : Docker
-   - **Automation** : Ansible, Shell/Bash
-   - **Outils** : IDE (VSCode/JetBrains), GitHub Actions
-
-## 📁 Structure générée
-
-```
-<nom-projet>/
-├── .envrc                      # Si direnv activé
-├── .gitignore                  # Adapté aux technologies sélectionnées
-├── .pre-commit-config.yaml     # Hooks pre-commit selon les technologies
-├── README.md
-├── LICENSE
-└── terraform/
-    ├── main.tf
-    ├── variables.tf
-    ├── outputs.tf
-    ├── versions.tf
-    └── terraform.tfvars
-```
-
-> 💡 Les fichiers `.gitignore` et `.pre-commit-config.yaml` sont générés dynamiquement en fonction des technologies sélectionnées (19 technologies disponibles organisées en 6 catégories).
-
-## ⚙️ Configuration
-
-projinit utilise un fichier de configuration YAML pour personnaliser les options.
-
-### 📍 Emplacement du fichier
-
-Le fichier est recherché dans l'ordre suivant :
-
-1. `./config.yaml` (dossier courant)
-2. `~/.config/projinit/config.yaml` (configuration globale)
-
-### 🔧 Créer votre configuration
+Generer un nouveau projet conforme aux standards :
 
 ```bash
-# Copier l'exemple
-cp config.example.yaml config.yaml
+# Creation interactive
+projinit new mon-projet
 
-# Ou pour une config globale
-mkdir -p ~/.config/projinit
-cp config.example.yaml ~/.config/projinit/config.yaml
+# Specifier le type
+projinit new mon-projet -t python-cli
+
+# Mode non-interactif
+projinit new mon-projet -t python-cli -d "Description du projet" -y
+
+# Dans un dossier specifique
+projinit new mon-projet -p /path/to/parent
 ```
 
-### 📋 Options disponibles
+### Gerer la configuration
+
+```bash
+# Voir la configuration actuelle
+projinit config show
+
+# Voir les chemins de configuration
+projinit config paths
+
+# Creer un fichier de configuration
+projinit config init --global  # ~/.config/projinit/config.yaml
+projinit config init --local   # .projinit.yaml
+```
+
+## Configuration
+
+### Hierarchie de configuration
+
+1. **Valeurs par defaut** (integrees)
+2. **Configuration globale** : `~/.config/projinit/config.yaml`
+3. **Configuration locale** : `.projinit.yaml` (projet)
+
+### Options de configuration
 
 ```yaml
-# Propriétaires GitHub disponibles
-owners:
-  - name: "mon-user"
-    label: "mon-user (personnel)"
-  - name: "mon-org"
-    label: "mon-org (organisation)"
+# projinit configuration
+author:
+  name: "Votre Nom"
+  email: "votre.email@example.com"
 
-# Chemin du secret dans pass
-pass_secret_path: "github/terraform-token"
+# Version Python par defaut
+python_version: "3.10"
 
-# Valeurs par défaut
-defaults:
-  visibility: "public"
-  use_direnv: false
+# Licence par defaut
+default_license: "MIT"
+
+# Personnalisation des standards
+standards:
+  # Changer le niveau d'un check
+  check_overrides:
+    has_claude_md: required  # Rendre CLAUDE.md obligatoire
+
+  # Desactiver des checks
+  disabled_checks:
+    - has_py_typed
+
+  # Ajouter des hooks pre-commit
+  extra_precommit_hooks:
+    - repo: https://github.com/example/hook
+      rev: v1.0.0
+      hooks:
+        - id: example-hook
+
+# Templates personnalises
+templates:
+  templates_dir: ~/.config/projinit/templates
+  overrides:
+    README.md.j2: ~/.config/projinit/templates/my-readme.j2
 ```
 
-## 🔐 Prérequis pour direnv
+## Standards verifies
 
-Si vous activez l'option direnv + pass :
+### Checks obligatoires (required)
 
-- ✅ [`direnv`](https://direnv.net/) doit être installé
-- ✅ [`pass`](https://www.passwordstore.org/) doit être installé
-- ✅ Le secret configuré dans `pass_secret_path` doit exister
+| Check | Description |
+|-------|-------------|
+| `has_readme` | README.md present |
+| `has_license` | Fichier LICENSE present |
+| `has_gitignore` | .gitignore present |
+| `has_pyproject` | pyproject.toml (Python) |
+| `has_package_json` | package.json (Node.js) |
 
-## 🛠️ Développement
+### Checks recommandes (recommended)
+
+| Check | Description |
+|-------|-------------|
+| `has_claude_md` | CLAUDE.md pour les instructions IA |
+| `has_precommit` | Configuration pre-commit |
+| `has_src_dir` | Structure src/ (Python) |
+| `has_tests_dir` | Repertoire tests/ |
+| `has_ruff_config` | Configuration Ruff (Python) |
+
+## Exemple de workflow
 
 ```bash
-# Cloner et installer (voir section Installation)
+# 1. Auditer un projet existant
+projinit check ~/mon-vieux-projet
+# Score: 45.5% - NON-COMPLIANT
+
+# 2. Voir ce qui serait corrige
+projinit update ~/mon-vieux-projet --dry-run
+
+# 3. Appliquer les corrections
+projinit update ~/mon-vieux-projet
+
+# 4. Verifier la conformite
+projinit check ~/mon-vieux-projet
+# Score: 100.0% - COMPLIANT
+
+# 5. Creer un nouveau projet conforme
+projinit new nouveau-projet -t python-cli
+# Score: 100.0% - COMPLIANT
+```
+
+## Integration CI/CD
+
+### GitHub Actions
+
+```yaml
+name: Conformity Check
+
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - run: uv tool install projinit
+      - run: projinit check -f markdown >> $GITHUB_STEP_SUMMARY
+```
+
+### Export Markdown avec badges
+
+```bash
+projinit check -f markdown > CONFORMITY.md
+```
+
+Genere un rapport avec badges shields.io :
+
+![Status](https://img.shields.io/badge/status-passing-brightgreen)
+![Score](https://img.shields.io/badge/score-100%25-brightgreen)
+
+## Developpement
+
+```bash
+# Cloner et installer
 git clone https://github.com/xgueret/projinit.git
 cd projinit
 uv sync
 
-# Exécuter en développement
-uv run projinit
+# Lancer en developpement
+uv run projinit check .
 
-# Lancer les tests (à venir)
+# Linting
+uvx ruff check src/
+
+# Tests
 uv run pytest
 ```
 
-## 📄 Licence
+## Licence
 
 MIT

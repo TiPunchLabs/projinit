@@ -1,3 +1,3 @@
-"""projinit - CLI pour générer la structure d'un projet avec configuration Terraform GitHub."""
+"""projinit - Project lifecycle management CLI tool."""
 
-__version__ = "0.3.0"
+__version__ = "2.0.0"
