@@ -306,6 +306,8 @@ def _get_files_for_type(project_type: ProjectType) -> list[str]:
         ".claude/commands/quality.md",
         ".claude/commands/commit.md",
         ".claude/commands/lint.md",
+        ".claude/commands/sync-docs.md",
+        ".claude/commands/sync-tech-docs.md",
         "doc/README.md",
         "doc/architecture.md",
         "doc/development.md",
@@ -789,7 +791,13 @@ def _generate_claude_commands(
     commands_dir.mkdir(parents=True, exist_ok=True)
 
     # Commands common to all project types
-    common_commands = ["quality.md", "commit.md", "lint.md"]
+    common_commands = [
+        "quality.md",
+        "commit.md",
+        "lint.md",
+        "sync-docs.md",
+        "sync-tech-docs.md",
+    ]
 
     for cmd in common_commands:
         template_name = f"commands/{cmd}.j2"

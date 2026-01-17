@@ -1,0 +1,87 @@
+---
+description: Synchronize technical documentation (doc/) with current codebase
+---
+
+## User Input
+
+```text
+$ARGUMENTS
+```
+
+## Purpose
+
+Update the technical documentation in `doc/` to reflect the current state of the codebase. This ensures developer documentation stays accurate as the project evolves.
+
+## Scope
+
+This command updates the following files in `doc/`:
+
+| File | Source Analysis |
+|------|-----------------|
+{% if project_type in ["python-cli", "python-lib"] %}
+| `architecture.md` | Module structure in `src/{{ project_name_snake }}/` |
+| `development.md` | Build/test commands, dependencies |
+| `configuration.md` | Config options in code |
+{% elif project_type == "node-frontend" %}
+| `architecture.md` | Component structure in `src/` |
+| `components.md` | React/Vue components (if exists) |
+| `development.md` | npm scripts, dependencies |
+| `configuration.md` | Vite/TypeScript config |
+{% elif project_type == "infrastructure" %}
+| `architecture.md` | Terraform modules, Ansible structure |
+| `infrastructure.md` | Resources, variables, outputs |
+| `development.md` | Setup, deployment commands |
+| `configuration.md` | Variables, tfvars, inventory |
+{% else %}
+| `architecture.md` | Project structure overview |
+| `development.md` | Setup and build commands |
+| `configuration.md` | Configuration options |
+{% endif %}
+
+## Execution Steps
+
+1. **Analyze current codebase**:
+{% if project_type in ["python-cli", "python-lib"] %}
+   - Read `src/{{ project_name_snake }}/` for modules and classes
+   - Check `pyproject.toml` for dependencies and scripts
+   - Identify public API and entry points
+{% elif project_type == "node-frontend" %}
+   - Scan `src/` for components and hooks
+   - Check `package.json` for scripts
+   - Review TypeScript types and interfaces
+{% elif project_type == "infrastructure" %}
+   - Scan `terraform/` for resources and modules
+   - Check `ansible/` for playbooks and roles
+   - Review variables and outputs
+{% endif %}
+
+2. **Compare with existing documentation**:
+   - Check if `doc/` directory exists
+   - Compare documented items vs actual code
+   - Identify missing or outdated sections
+
+3. **Update documentation**:
+   - Add new modules/components to architecture.md
+   - Update development commands if changed
+   - Add new configuration options
+   - Preserve existing explanations and examples
+
+4. **Report changes**:
+   - List files updated
+   - List new items added
+   - Suggest manual review areas
+
+## When to Run
+
+- After adding new modules or components
+- After changing project structure
+- After adding new configuration options
+- After modifying build/test commands
+- Before major releases
+
+## Guidelines
+
+- **Preserve manual content**: Only update structured sections
+- **Add, don't remove**: Flag outdated content instead of deleting
+- **Code examples**: Update if API changed
+- **Consistency**: Match existing documentation style
