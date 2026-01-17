@@ -124,6 +124,8 @@ class AuditReport:
     project_path: Path
     project_type: ProjectType
     checks: list[CheckResult] = field(default_factory=list)
+    execution_time_ms: float = 0.0
+    files_scanned: list[str] = field(default_factory=list)
 
     @property
     def passed_count(self) -> int:
@@ -160,3 +162,29 @@ class AuditReport:
             for c in self.checks
             if c.level == CheckLevel.REQUIRED
         )
+
+    @property
+    def checks_by_level(self) -> dict[CheckLevel, list[CheckResult]]:
+        """Group checks by their level."""
+        result: dict[CheckLevel, list[CheckResult]] = {
+            CheckLevel.REQUIRED: [],
+            CheckLevel.RECOMMENDED: [],
+            CheckLevel.OPTIONAL: [],
+        }
+        for check in self.checks:
+            result[check.level].append(check)
+        return result
+
+    @property
+    def failed_checks(self) -> list[CheckResult]:
+        """Get all failed checks."""
+        return [c for c in self.checks if c.status == CheckStatus.FAILED]
+
+    @property
+    def actionable_suggestions(self) -> list[tuple[str, str]]:
+        """Get actionable suggestions with commands."""
+        suggestions = []
+        for check in self.failed_checks:
+            if check.suggestion:
+                suggestions.append((check.id, check.suggestion))
+        return suggestions

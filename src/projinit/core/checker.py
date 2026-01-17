@@ -1,5 +1,6 @@
 """Conformity checker for projinit v2.0."""
 
+import time
 from pathlib import Path
 
 from projinit.core.models import (
@@ -25,6 +26,7 @@ class Checker:
         """
         self.project_path = project_path
         self.project_type = project_type
+        self._files_scanned: set[str] = set()
 
     def run_checks(self) -> AuditReport:
         """
@@ -33,17 +35,26 @@ class Checker:
         Returns:
             AuditReport with all check results.
         """
+        start_time = time.perf_counter()
+
         checks = get_checks_for_type(self.project_type)
         results = []
 
         for check_def in checks:
             result = self._run_single_check(check_def)
             results.append(result)
+            # Track scanned files
+            if result.file_path:
+                self._files_scanned.add(str(result.file_path.relative_to(self.project_path)))
+
+        execution_time_ms = (time.perf_counter() - start_time) * 1000
 
         return AuditReport(
             project_path=self.project_path,
             project_type=self.project_type,
             checks=results,
+            execution_time_ms=execution_time_ms,
+            files_scanned=sorted(self._files_scanned),
         )
 
     def _run_single_check(self, check_def: dict) -> CheckResult:
