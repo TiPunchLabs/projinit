@@ -13,6 +13,7 @@ class ProjectType(Enum):
     NODE_FRONTEND = "node-frontend"
     INFRASTRUCTURE = "infrastructure"
     DOCUMENTATION = "documentation"
+    LAB = "lab"
     UNKNOWN = "unknown"
 
     @property
@@ -24,6 +25,7 @@ class ProjectType(Enum):
             ProjectType.NODE_FRONTEND: "Node.js Frontend",
             ProjectType.INFRASTRUCTURE: "Infrastructure (Terraform/Ansible)",
             ProjectType.DOCUMENTATION: "Documentation (MkDocs)",
+            ProjectType.LAB: "Lab/Tutorial",
             ProjectType.UNKNOWN: "Unknown",
         }
         return names.get(self, self.value)

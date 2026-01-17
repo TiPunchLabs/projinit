@@ -45,6 +45,7 @@ def load_standards(
         ProjectType.NODE_FRONTEND: "node.yaml",
         ProjectType.INFRASTRUCTURE: "infra.yaml",
         ProjectType.DOCUMENTATION: "documentation.yaml",
+        ProjectType.LAB: "lab.yaml",
     }
 
     if project_type in type_mapping:

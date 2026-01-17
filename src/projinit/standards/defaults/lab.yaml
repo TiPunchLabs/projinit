@@ -1,0 +1,86 @@
+# Lab/Tutorial project standards
+name: Lab Standards
+version: "1.0"
+description: Standards for lab, tutorial, and dojo projects
+applies_to:
+  - lab
+
+markers:
+  - labs/
+  - exercises/
+  - solutions/
+
+checks:
+  - id: has_labs_or_exercises
+    description: Lab should have labs/ or exercises/ directory
+    level: required
+    type: any_exists
+    paths:
+      - labs/
+      - exercises/
+      - modules/
+
+  - id: has_solutions
+    description: Lab should have solutions or answers
+    level: recommended
+    type: any_exists
+    paths:
+      - solutions/
+      - answers/
+      - corrections/
+
+  - id: has_lab_readme
+    description: Lab should have a README with instructions
+    level: required
+    type: file_exists
+    path: README.md
+
+  - id: has_documentation
+    description: Lab should have documentation (MkDocs or docs/)
+    level: recommended
+    type: any_exists
+    paths:
+      - mkdocs.yml
+      - mkdocs.yaml
+      - docs/index.md
+
+  - id: has_prerequisites
+    description: Lab should document prerequisites
+    level: recommended
+    type: content_contains
+    path: README.md
+    patterns:
+      - "requisites"
+      - "Requirements"
+      - "Prerequisites"
+
+  - id: has_progression
+    description: Labs should be numbered or have clear progression
+    level: optional
+    type: any_exists
+    paths:
+      - labs/01
+      - labs/lab-01
+      - labs/module-01
+      - exercises/01
+      - modules/01
+
+  - id: has_assets
+    description: Lab should have assets directory for images/diagrams
+    level: optional
+    type: any_exists
+    paths:
+      - assets/
+      - images/
+      - docs/assets/
+      - docs/images/
+
+  - id: mkdocs_has_nav
+    description: MkDocs should have navigation configured
+    level: recommended
+    type: content_contains
+    path: mkdocs.yml
+    patterns:
+      - "nav:"
+    alternatives:
+      - mkdocs.yaml

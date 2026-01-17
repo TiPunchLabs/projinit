@@ -38,6 +38,14 @@ PROJECT_MARKERS: dict[ProjectType, dict[str, float]] = {
         "docs/": 0.3,
         "mkdocs.yaml": 0.5,
     },
+    ProjectType.LAB: {
+        "labs/": 0.5,
+        "exercises/": 0.4,
+        "solutions/": 0.3,
+        "answers/": 0.3,
+        "mkdocs.yml": 0.2,
+        "docs/": 0.1,
+    },
 }
 
 # Files that help distinguish between similar types
