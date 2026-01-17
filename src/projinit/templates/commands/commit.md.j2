@@ -1,0 +1,61 @@
+---
+description: Commit Changes
+---
+
+## Commit Workflow
+
+Guide for committing changes to {{ project_name }}.
+
+### Pre-commit Checks
+
+Before committing, run quality checks:
+
+{% if project_type == "python-cli" or project_type == "python-lib" %}
+```bash
+uvx ruff check src/ --fix
+uvx ruff format src/
+uv run pytest
+```
+{% elif project_type == "node-frontend" %}
+```bash
+npm run lint:fix
+npm run format
+npm test
+```
+{% elif project_type == "infrastructure" %}
+```bash
+terraform fmt
+terraform validate
+ansible-lint
+```
+{% else %}
+```bash
+# Run appropriate quality checks
+```
+{% endif %}
+
+### Commit Message Format
+
+Use conventional commits:
+
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer]
+```
+
+**Types**: feat, fix, docs, style, refactor, test, chore
+
+### Examples
+
+```bash
+git add -A
+git commit -m "feat(api): add user authentication endpoint"
+```
+
+```bash
+git add -A
+git commit -m "fix(ui): resolve button alignment issue"
+```

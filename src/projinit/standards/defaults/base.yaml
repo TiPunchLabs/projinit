@@ -48,6 +48,13 @@ checks:
       - end-of-file-fixer
       - trailing-whitespace
 
+  # Claude Code commands
+  - id: has_claude_commands
+    description: .claude/commands/ directory with standard commands should exist
+    level: recommended
+    type: dir_exists
+    path: .claude/commands
+
   # Security - direnv with pass for secrets
   - id: envrc_uses_pass
     description: .envrc should use pass for secure secrets management

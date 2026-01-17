@@ -223,6 +223,7 @@ def _ask_project_type() -> ProjectType | None:
             "Infrastructure (Terraform + Ansible)", value=ProjectType.INFRASTRUCTURE
         ),
         questionary.Choice("Documentation (MkDocs)", value=ProjectType.DOCUMENTATION),
+        questionary.Choice("Lab/Tutorial/Dojo", value=ProjectType.LAB),
     ]
     return questionary.select("Project type:", choices=choices).ask()
 
@@ -235,10 +236,13 @@ def _ask_description(project_name: str) -> str:
 
 def _ask_direnv() -> bool:
     """Prompt for direnv + pass activation."""
-    return questionary.confirm(
-        "Enable direnv + pass for secrets management?",
-        default=False,
-    ).ask() or False
+    return (
+        questionary.confirm(
+            "Enable direnv + pass for secrets management?",
+            default=False,
+        ).ask()
+        or False
+    )
 
 
 def _check_direnv_requirements() -> bool:
@@ -247,7 +251,7 @@ def _check_direnv_requirements() -> bool:
     if shutil.which("direnv") is None:
         console.print("[red]direnv is not installed[/red]")
         console.print("[dim]Install with: sudo apt install direnv[/dim]")
-        console.print("[dim]Then add to your shell: eval \"$(direnv hook bash)\"[/dim]")
+        console.print('[dim]Then add to your shell: eval "$(direnv hook bash)"[/dim]')
         return False
 
     # Check pass
@@ -299,6 +303,9 @@ def _get_files_for_type(project_type: ProjectType) -> list[str]:
         ".gitignore",
         "CLAUDE.md",
         ".pre-commit-config.yaml",
+        ".claude/commands/quality.md",
+        ".claude/commands/commit.md",
+        ".claude/commands/lint.md",
     ]
 
     type_specific = {
@@ -316,6 +323,7 @@ def _get_files_for_type(project_type: ProjectType) -> list[str]:
             "ansible/playbook.yml",
         ],
         ProjectType.DOCUMENTATION: ["mkdocs.yml", "pyproject.toml", "docs/index.md"],
+        ProjectType.LAB: ["labs/", "docs/index.md", "mkdocs.yml"],
     }
 
     return common + type_specific.get(project_type, [])
@@ -363,6 +371,8 @@ def _generate_project(
             _generate_infra_project(env, target_dir, context)
         elif project_type == ProjectType.DOCUMENTATION:
             _generate_docs_project(env, target_dir, context)
+        elif project_type == ProjectType.LAB:
+            _generate_lab_project(env, target_dir, context)
 
         return True
     except Exception as e:
@@ -422,6 +432,9 @@ def _generate_common_files(
     # .envrc for direnv + pass
     if use_direnv:
         _generate_envrc(target_dir, context)
+
+    # .claude/commands/
+    _generate_claude_commands(env, target_dir, context, project_type)
 
 
 def _generate_python_project(
@@ -657,6 +670,84 @@ uv run mkdocs serve
 """)
 
 
+def _generate_lab_project(env: Environment, target_dir: Path, context: dict) -> None:
+    """Generate Lab/Tutorial/Dojo project files."""
+    # pyproject.toml for docs
+    template = env.get_template("pyproject-docs.toml.j2")
+    (target_dir / "pyproject.toml").write_text(template.render(**context))
+
+    # mkdocs.yml
+    template = env.get_template("mkdocs.yml.j2")
+    (target_dir / "mkdocs.yml").write_text(template.render(**context))
+
+    # Create labs directory structure
+    labs_dir = target_dir / "labs"
+    labs_dir.mkdir(exist_ok=True)
+
+    # Create example lab
+    lab01_dir = labs_dir / "01-getting-started"
+    lab01_dir.mkdir(exist_ok=True)
+
+    (lab01_dir / "README.md").write_text(f"""# Lab 01: Getting Started
+
+## Objectives
+
+- Understand the basics of {context["project_name"]}
+- Complete your first exercise
+
+## Prerequisites
+
+- Basic knowledge required (list here)
+
+## Exercises
+
+### Exercise 1: Hello World
+
+**Task**: Create a simple hello world example.
+
+**Expected outcome**: A working hello world program.
+
+## Solutions
+
+See the `solutions/` directory for reference implementations.
+""")
+
+    # Create solutions directory
+    solutions_dir = target_dir / "solutions"
+    solutions_dir.mkdir(exist_ok=True)
+    (solutions_dir / "01-getting-started" / ".gitkeep").parent.mkdir(
+        parents=True, exist_ok=True
+    )
+    (solutions_dir / "01-getting-started" / ".gitkeep").write_text("")
+
+    # Create docs directory for mkdocs
+    docs_dir = target_dir / "docs"
+    docs_dir.mkdir(exist_ok=True)
+
+    (docs_dir / "index.md").write_text(f"""# {context["project_name"]}
+
+{context["description"]}
+
+## Overview
+
+This is a lab/tutorial project for hands-on learning.
+
+## Getting Started
+
+1. Read the lab instructions in `labs/`
+2. Complete the exercises
+3. Check your work against `solutions/`
+
+## Labs
+
+- [Lab 01: Getting Started](labs/01-getting-started/README.md)
+
+## Prerequisites
+
+List prerequisites here.
+""")
+
+
 def _generate_envrc(target_dir: Path, context: dict) -> None:
     """Generate .envrc file for direnv + pass integration."""
     project_name = context["project_name"]
@@ -678,6 +769,28 @@ export PROJECT_NAME="{project_name}"
 # layout python3
 """
     (target_dir / ".envrc").write_text(envrc_content)
+
+
+def _generate_claude_commands(
+    env: Environment,
+    target_dir: Path,
+    context: dict,
+    project_type: ProjectType,
+) -> None:
+    """Generate .claude/commands/ directory with standard commands."""
+    commands_dir = target_dir / ".claude" / "commands"
+    commands_dir.mkdir(parents=True, exist_ok=True)
+
+    # Commands common to all project types
+    common_commands = ["quality.md", "commit.md", "lint.md"]
+
+    for cmd in common_commands:
+        template_name = f"commands/{cmd}.j2"
+        try:
+            template = env.get_template(template_name)
+            (commands_dir / cmd).write_text(template.render(**context))
+        except Exception:
+            pass
 
 
 def _allow_direnv(target_dir: Path) -> bool:
@@ -747,6 +860,10 @@ def _display_next_steps(
     elif project_type == ProjectType.DOCUMENTATION:
         console.print(f"  [dim]{step}.[/dim] uv sync")
         console.print(f"  [dim]{step + 1}.[/dim] uv run mkdocs serve")
+    elif project_type == ProjectType.LAB:
+        console.print(f"  [dim]{step}.[/dim] uv sync")
+        console.print(f"  [dim]{step + 1}.[/dim] uv run mkdocs serve")
+        console.print(f"  [dim]{step + 2}.[/dim] Start with labs/01-getting-started/")
 
     console.print()
 
