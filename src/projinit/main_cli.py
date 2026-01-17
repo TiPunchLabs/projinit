@@ -19,6 +19,7 @@ from projinit.generator import (
     init_git_repository,
 )
 from projinit.cli.check_cmd import add_check_parser, run_check
+from projinit.cli.update_cmd import add_update_parser, run_update
 from projinit.validators import validate_slug
 from projinit.version import display_version_banner
 
@@ -82,6 +83,7 @@ def parse_args() -> argparse.Namespace:
         "init", help="Initialise un nouveau projet (mode interactif)"
     )
     add_check_parser(subparsers)
+    add_update_parser(subparsers)
 
     return parser.parse_args()
 
@@ -307,6 +309,11 @@ def main() -> None:
     # Gérer la sous-commande check
     if args.command == "check":
         exit_code = run_check(args)
+        sys.exit(exit_code)
+
+    # Gérer la sous-commande update
+    if args.command == "update":
+        exit_code = run_update(args)
         sys.exit(exit_code)
 
     # Si init explicite ou pas de commande, lancer le mode interactif
