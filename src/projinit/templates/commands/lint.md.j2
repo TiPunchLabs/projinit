@@ -1,0 +1,86 @@
+---
+description: Lint Project
+---
+
+## Lint {{ project_name }}
+
+{% if project_type == "python-cli" or project_type == "python-lib" %}
+### Python Linting with Ruff
+
+```bash
+# Check for issues
+uvx ruff check src/
+
+# Auto-fix issues
+uvx ruff check src/ --fix
+
+# Format code
+uvx ruff format src/
+
+# Check formatting without applying
+uvx ruff format --check src/
+```
+
+### Configuration
+
+Ruff configuration is in `pyproject.toml`:
+
+```toml
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+```
+{% elif project_type == "node-frontend" %}
+### JavaScript/TypeScript Linting
+
+```bash
+# ESLint check
+npm run lint
+
+# ESLint auto-fix
+npm run lint:fix
+
+# Prettier format
+npm run format
+
+# Prettier check
+npm run format:check
+```
+
+### Configuration
+
+- ESLint: `eslint.config.js` or `.eslintrc.*`
+- Prettier: `.prettierrc`
+{% elif project_type == "infrastructure" %}
+### Infrastructure Linting
+
+```bash
+# Terraform format
+terraform fmt
+
+# Terraform format check
+terraform fmt -check
+
+# Terraform validate
+terraform validate
+
+# Ansible lint
+ansible-lint
+```
+{% elif project_type == "documentation" or project_type == "lab" %}
+### Documentation Linting
+
+```bash
+# Markdown lint
+npx markdownlint docs/
+
+# Markdown lint with fix
+npx markdownlint docs/ --fix
+
+# Validate MkDocs build
+mkdocs build --strict
+```
+{% endif %}

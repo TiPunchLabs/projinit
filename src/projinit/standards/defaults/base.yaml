@@ -1,0 +1,75 @@
+# Base standards - Apply to ALL project types
+name: Base Standards
+version: "1.0"
+description: Mandatory files and configurations for all projects
+
+checks:
+  - id: has_readme
+    description: README.md must exist
+    level: required
+    type: file_exists
+    path: README.md
+    template: templates/README.md.j2
+
+  - id: has_license
+    description: LICENSE file must exist
+    level: required
+    type: file_exists
+    path: LICENSE
+    template: templates/LICENSE.j2
+
+  - id: has_gitignore
+    description: .gitignore must exist
+    level: required
+    type: file_exists
+    path: .gitignore
+    template: templates/.gitignore.j2
+
+  - id: has_claude_md
+    description: CLAUDE.md (Claude Code instructions) should exist
+    level: recommended
+    type: file_exists
+    path: CLAUDE.md
+    template: templates/CLAUDE.md.j2
+
+  - id: has_precommit
+    description: Pre-commit configuration should exist
+    level: recommended
+    type: file_exists
+    path: .pre-commit-config.yaml
+    template: templates/.pre-commit-config.yaml.j2
+
+  - id: precommit_has_basic_hooks
+    description: Pre-commit should have basic hooks (end-of-file-fixer, trailing-whitespace)
+    level: recommended
+    type: content_contains
+    path: .pre-commit-config.yaml
+    patterns:
+      - end-of-file-fixer
+      - trailing-whitespace
+
+  # Claude Code commands
+  - id: has_claude_commands
+    description: .claude/commands/ directory with standard commands should exist
+    level: recommended
+    type: dir_exists
+    path: .claude/commands
+
+  # Technical documentation
+  - id: has_technical_docs
+    description: doc/ or docs/ directory with technical documentation should exist
+    level: recommended
+    type: dir_exists
+    path: doc
+    alternatives:
+      - docs
+
+  # Security - direnv with pass for secrets
+  - id: envrc_uses_pass
+    description: .envrc should use pass for secure secrets management
+    level: recommended
+    type: content_contains
+    path: .envrc
+    patterns:
+      - "pass show"
+      - "pass "

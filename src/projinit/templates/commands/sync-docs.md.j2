@@ -1,0 +1,66 @@
+---
+description: Synchronize README.md and constitution.md with current project state
+---
+
+## User Input
+
+```text
+$ARGUMENTS
+```
+
+## Purpose
+
+Update user-facing documentation to reflect the current state of the project after implementing new features or making significant changes.
+
+## Scope
+
+This command updates:
+
+| File | Content Updated |
+|------|-----------------|
+| `README.md` | Features, commands, usage examples, installation |
+| `constitution.md` | Architecture, patterns, technical decisions (if exists) |
+
+## Execution Steps
+
+1. **Analyze current project state**:
+   - Read source files to identify features and commands
+{% if project_type in ["python-cli", "python-lib"] %}
+   - Check `pyproject.toml` for dependencies and scripts
+   - Scan `src/{{ project_name_snake }}/` for modules and CLI commands
+{% elif project_type == "node-frontend" %}
+   - Check `package.json` for scripts and dependencies
+   - Scan `src/` for components and features
+{% elif project_type == "infrastructure" %}
+   - Check `terraform/` for resources and variables
+   - Check `ansible/` for playbooks and roles
+{% endif %}
+
+2. **Update README.md**:
+   - Verify installation instructions are current
+   - Update feature list if new features added
+   - Update usage examples if API changed
+   - Ensure all commands are documented
+
+3. **Update constitution.md** (if exists):
+   - Update architecture section if structure changed
+   - Add new patterns or conventions used
+   - Document new technical decisions
+
+4. **Report changes**:
+   - List sections updated
+   - Highlight any manual review needed
+
+## When to Run
+
+- After implementing a new feature
+- After adding new commands or API endpoints
+- After changing project structure
+- Before creating a release
+
+## Guidelines
+
+- Preserve existing documentation style
+- Add new content, don't remove existing unless outdated
+- Use consistent formatting (ASCII-safe if current docs use it)
+- Keep examples up to date with actual code

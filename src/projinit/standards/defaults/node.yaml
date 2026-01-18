@@ -1,0 +1,157 @@
+# Node.js project standards
+name: Node.js Standards
+version: "1.0"
+description: Standards for Node.js frontend projects (React, Vue, Vite)
+applies_to:
+  - node-frontend
+
+markers:
+  - package.json
+
+checks:
+  # Required checks
+  - id: has_package_json
+    description: package.json must exist
+    level: required
+    type: file_exists
+    path: package.json
+
+  # Recommended structure
+  - id: has_src_dir
+    description: Source code should be in src/ directory
+    level: recommended
+    type: dir_exists
+    path: src/
+
+  - id: has_public_dir
+    description: Public assets should be in public/ directory
+    level: recommended
+    type: dir_exists
+    path: public/
+
+  # TypeScript
+  - id: has_tsconfig
+    description: TypeScript configuration should exist
+    level: recommended
+    type: file_exists
+    path: tsconfig.json
+
+  # Build tool - Vite
+  - id: has_vite_config
+    description: Vite configuration should exist
+    level: recommended
+    type: file_exists
+    path: vite.config.ts
+    alternatives:
+      - vite.config.js
+      - vite.config.mts
+
+  - id: has_index_html
+    description: Entry point index.html should exist
+    level: required
+    type: file_exists
+    path: index.html
+
+  # Scripts
+  - id: package_has_scripts
+    description: package.json should have dev/build/test scripts
+    level: recommended
+    type: content_contains
+    path: package.json
+    patterns:
+      - '"dev"'
+      - '"build"'
+
+  - id: package_has_test_script
+    description: package.json should have test script
+    level: recommended
+    type: content_contains
+    path: package.json
+    patterns:
+      - '"test"'
+
+  - id: package_has_type_module
+    description: package.json should use ES modules
+    level: recommended
+    type: content_contains
+    path: package.json
+    patterns:
+      - '"type": "module"'
+
+  # React specific
+  - id: has_main_entry
+    description: React app should have main entry point
+    level: recommended
+    type: file_exists
+    path: src/main.tsx
+    alternatives:
+      - src/main.ts
+      - src/main.jsx
+      - src/main.js
+      - src/index.tsx
+      - src/index.ts
+
+  - id: has_app_component
+    description: React app should have App component
+    level: optional
+    type: file_exists
+    path: src/App.tsx
+    alternatives:
+      - src/App.jsx
+      - src/App.ts
+      - src/App.js
+
+  # Linting
+  - id: has_eslint_config
+    description: ESLint configuration should exist
+    level: recommended
+    type: file_exists
+    path: eslint.config.js
+    alternatives:
+      - eslint.config.mjs
+      - .eslintrc.js
+      - .eslintrc.json
+      - .eslintrc.yaml
+
+  - id: has_prettier_config
+    description: Prettier configuration should exist
+    level: optional
+    type: file_exists
+    path: .prettierrc
+    alternatives:
+      - .prettierrc.json
+      - .prettierrc.js
+      - prettier.config.js
+      - prettier.config.mjs
+
+  # PWA specific
+  - id: has_manifest
+    description: PWA should have manifest file
+    level: optional
+    type: file_exists
+    path: public/manifest.json
+    alternatives:
+      - public/manifest.webmanifest
+      - manifest.json
+      - manifest.webmanifest
+
+  - id: has_service_worker
+    description: PWA should have service worker
+    level: optional
+    type: any_exists
+    paths:
+      - public/sw.js
+      - public/service-worker.js
+      - src/sw.ts
+      - src/service-worker.ts
+
+precommit_hooks:
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.17.0
+    hooks:
+      - id: eslint
+        files: \.[jt]sx?$
+        types: [file]
+        additional_dependencies:
+          - eslint
+          - typescript

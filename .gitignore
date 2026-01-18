@@ -21,9 +21,14 @@ wheels/
 *.egg
 
 # Virtual environments
-.venv/
+.env
+.venv
+.envrc
+env/
 venv/
 ENV/
+env.bak/
+venv.bak/
 
 # IDE
 .idea/
@@ -48,3 +53,14 @@ uv.lock
 config.yaml
 .claude/settings.local.json
 tmp/
+
+# Secrets et fichiers sensibles
+.env
+.env.*
+*.pem
+*.key
+*credentials*
+*secret*
+
+# MkDocs
+site/

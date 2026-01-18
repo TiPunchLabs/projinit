@@ -132,4 +132,11 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
+10. Documentation synchronization:
+   - **IMPORTANT**: After successful implementation, run `/sync-docs` to update:
+     - README.md with new features, commands, or project types
+     - constitution.md with stack changes or new patterns
+   - This ensures documentation coherence with the implemented changes
+   - Skip if `--no-docs` flag is passed in arguments
+
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/speckit.tasks` first to regenerate the task list.

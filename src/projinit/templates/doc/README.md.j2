@@ -1,0 +1,65 @@
+# {{ project_name }} - Technical Documentation
+
+Technical documentation for {{ project_name }}.
+
+## Table of Contents
+
+| Document | Description |
+|----------|-------------|
+| [Architecture](architecture.md) | System architecture and design decisions |
+{% if project_type in ["python-cli", "python-lib"] %}
+| [Modules](modules.md) | Python modules and their responsibilities |
+{% elif project_type == "node-frontend" %}
+| [Components](components.md) | React/Vue components structure |
+{% elif project_type == "infrastructure" %}
+| [Infrastructure](infrastructure.md) | Terraform modules and Ansible roles |
+{% endif %}
+| [Configuration](configuration.md) | Configuration options |
+| [Development](development.md) | Development setup and guidelines |
+
+## Quick Overview
+
+```
+{{ project_name }}/
+{% if project_type in ["python-cli", "python-lib"] %}
+├── src/{{ project_name_snake }}/    # Source code
+├── tests/                           # Test suite
+├── doc/                             # This documentation
+└── pyproject.toml                   # Project configuration
+{% elif project_type == "node-frontend" %}
+├── src/                             # Source code
+├── public/                          # Static assets
+├── doc/                             # This documentation
+└── package.json                     # Project configuration
+{% elif project_type == "infrastructure" %}
+├── terraform/                       # Infrastructure as Code
+├── ansible/                         # Configuration management
+├── doc/                             # This documentation
+└── README.md                        # Usage guide
+{% elif project_type == "documentation" %}
+├── docs/                            # Documentation source
+├── doc/                             # Technical documentation
+├── mkdocs.yml                       # MkDocs configuration
+└── pyproject.toml                   # Dependencies
+{% elif project_type == "lab" %}
+├── labs/                            # Lab exercises
+├── solutions/                       # Reference solutions
+├── docs/                            # User documentation
+├── doc/                             # Technical documentation
+└── mkdocs.yml                       # MkDocs configuration
+{% else %}
+├── src/                             # Source code
+├── doc/                             # This documentation
+└── README.md                        # Usage guide
+{% endif %}
+```
+
+## Getting Started
+
+1. Read [Architecture](architecture.md) to understand the project structure
+2. Check [Development](development.md) for setup instructions
+{% if project_type in ["python-cli", "python-lib"] %}
+3. Review [Modules](modules.md) for code organization
+{% elif project_type == "node-frontend" %}
+3. Review [Components](components.md) for UI structure
+{% endif %}

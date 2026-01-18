@@ -1,0 +1,199 @@
+# Architecture
+
+## Overview
+
+{{ description }}
+
+{% if project_type == "python-cli" %}
+## System Architecture
+
+```
+┌─────────────────────────────────────────┐
+│              CLI Layer                   │
+│  ┌─────────────────────────────────┐    │
+│  │         Command Parser          │    │
+│  └──────────────┬──────────────────┘    │
+└─────────────────┼───────────────────────┘
+                  │
+┌─────────────────┼───────────────────────┐
+│                 ▼       Core Layer      │
+│  ┌─────────────────────────────────┐    │
+│  │        Business Logic           │    │
+│  └─────────────────────────────────┘    │
+└─────────────────────────────────────────┘
+```
+
+## Module Structure
+
+```
+src/{{ project_name_snake }}/
+├── __init__.py          # Package initialization, version
+├── cli.py               # CLI entry point and commands
+├── core/                # Business logic (add as needed)
+└── utils/               # Utility functions (add as needed)
+```
+
+{% elif project_type == "python-lib" %}
+## Library Architecture
+
+```
+┌─────────────────────────────────────────┐
+│            Public API                    │
+│  ┌─────────────────────────────────┐    │
+│  │     Exported Functions/Classes   │    │
+│  └──────────────┬──────────────────┘    │
+└─────────────────┼───────────────────────┘
+                  │
+┌─────────────────┼───────────────────────┐
+│                 ▼    Internal Layer     │
+│  ┌─────────────────────────────────┐    │
+│  │      Implementation Details      │    │
+│  └─────────────────────────────────┘    │
+└─────────────────────────────────────────┘
+```
+
+## Module Structure
+
+```
+src/{{ project_name_snake }}/
+├── __init__.py          # Public API exports
+├── core.py              # Core functionality
+├── models.py            # Data models (add as needed)
+└── utils.py             # Internal utilities (add as needed)
+```
+
+{% elif project_type == "node-frontend" %}
+## Frontend Architecture
+
+```
+┌─────────────────────────────────────────┐
+│           Presentation Layer            │
+│  ┌─────────────────────────────────┐    │
+│  │          Components              │    │
+│  └──────────────┬──────────────────┘    │
+└─────────────────┼───────────────────────┘
+                  │
+┌─────────────────┼───────────────────────┐
+│                 ▼      State Layer      │
+│  ┌─────────────────────────────────┐    │
+│  │       State Management           │    │
+│  └──────────────┬──────────────────┘    │
+└─────────────────┼───────────────────────┘
+                  │
+┌─────────────────┼───────────────────────┐
+│                 ▼      Data Layer       │
+│  ┌─────────────────────────────────┐    │
+│  │         API Services             │    │
+│  └─────────────────────────────────┘    │
+└─────────────────────────────────────────┘
+```
+
+## Project Structure
+
+```
+src/
+├── components/          # React/Vue components
+├── hooks/               # Custom hooks (add as needed)
+├── services/            # API services (add as needed)
+├── utils/               # Utility functions
+└── main.tsx             # Application entry point
+```
+
+{% elif project_type == "infrastructure" %}
+## Infrastructure Architecture
+
+```
+┌─────────────────────────────────────────┐
+│           Terraform Layer               │
+│  ┌─────────────────────────────────┐    │
+│  │      Infrastructure as Code      │    │
+│  └──────────────┬──────────────────┘    │
+└─────────────────┼───────────────────────┘
+                  │
+┌─────────────────┼───────────────────────┐
+│                 ▼     Ansible Layer     │
+│  ┌─────────────────────────────────┐    │
+│  │     Configuration Management     │    │
+│  └─────────────────────────────────┘    │
+└─────────────────────────────────────────┘
+```
+
+## Project Structure
+
+```
+terraform/
+├── main.tf              # Main resources
+├── variables.tf         # Input variables
+├── outputs.tf           # Output values
+└── versions.tf          # Provider versions
+
+ansible/
+├── playbook.yml         # Main playbook
+└── inventory/           # Inventory files
+```
+
+{% else %}
+## Project Structure
+
+```
+{{ project_name }}/
+├── src/                 # Source code
+├── doc/                 # Technical documentation
+└── README.md            # User documentation
+```
+
+{% endif %}
+
+## Design Decisions
+
+### Technology Choices
+
+| Component | Technology | Rationale |
+|-----------|------------|-----------|
+{% if project_type in ["python-cli", "python-lib"] %}
+| Language | Python >= 3.10 | Modern type hints, pattern matching |
+| Package Manager | uv | Fast, reliable dependency management |
+| Linting | Ruff | Fast, comprehensive Python linter |
+{% elif project_type == "node-frontend" %}
+| Language | TypeScript | Type safety, better DX |
+| Framework | React/Vite | Fast development, modern tooling |
+| Linting | ESLint | Standard JavaScript/TypeScript linter |
+{% elif project_type == "infrastructure" %}
+| IaC | Terraform | Declarative, provider ecosystem |
+| Config Mgmt | Ansible | Agentless, YAML-based |
+{% endif %}
+
+### Patterns Used
+
+<!-- Document architectural patterns as the project evolves -->
+
+- Pattern 1: Description
+- Pattern 2: Description
+
+## Data Flow
+
+<!-- Add data flow diagrams as the project evolves -->
+
+```
+Input → Processing → Output
+```
+
+## Security Considerations
+
+<!-- Document security aspects -->
+
+- No secrets in code
+- Environment variables for sensitive data
+{% if project_type in ["python-cli", "python-lib", "infrastructure"] %}
+- Optional direnv + pass integration for local development
+{% endif %}
+
+## Extensibility
+
+<!-- Document how to extend the project -->
+
+### Adding New Features
+
+1. Step 1
+2. Step 2
+3. Step 3

@@ -1,0 +1,279 @@
+# Development Guide
+
+## Prerequisites
+
+{% if project_type in ["python-cli", "python-lib", "documentation", "lab"] %}
+- Python >= 3.10
+- [uv](https://github.com/astral-sh/uv) package manager
+{% elif project_type == "node-frontend" %}
+- Node.js >= 18
+- npm or pnpm
+{% elif project_type == "infrastructure" %}
+- Terraform >= 1.0
+- Ansible >= 2.9
+- Python >= 3.10 (for Ansible)
+{% endif %}
+
+## Setup
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd {{ project_name }}
+
+{% if project_type in ["python-cli", "python-lib", "documentation", "lab"] %}
+# Install dependencies
+uv sync
+
+# Verify installation
+uv run {{ project_name }} --version  # For CLI
+uv run python -c "import {{ project_name_snake }}; print('OK')"  # For lib
+{% elif project_type == "node-frontend" %}
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+{% elif project_type == "infrastructure" %}
+# Initialize Terraform
+cd terraform
+terraform init
+
+# Initialize Ansible (if using roles)
+ansible-galaxy install -r requirements.yml
+{% endif %}
+```
+
+## Development Workflow
+
+### Running Locally
+
+{% if project_type == "python-cli" %}
+```bash
+# Run the CLI
+uv run {{ project_name }} <command>
+
+# Run with debug output
+uv run {{ project_name }} -v <command>
+```
+{% elif project_type == "python-lib" %}
+```bash
+# Import and test in Python REPL
+uv run python
+>>> import {{ project_name_snake }}
+>>> {{ project_name_snake }}.some_function()
+```
+{% elif project_type == "node-frontend" %}
+```bash
+# Development server with hot reload
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+{% elif project_type == "infrastructure" %}
+```bash
+# Plan changes
+terraform plan
+
+# Apply changes
+terraform apply
+
+# Run Ansible playbook
+ansible-playbook -i inventory/hosts.yml playbook.yml
+```
+{% elif project_type in ["documentation", "lab"] %}
+```bash
+# Serve documentation locally
+uv run mkdocs serve
+
+# Build documentation
+uv run mkdocs build
+```
+{% endif %}
+
+### Code Quality
+
+{% if project_type in ["python-cli", "python-lib", "documentation", "lab"] %}
+```bash
+# Lint code
+uvx ruff check src/
+
+# Auto-fix lint issues
+uvx ruff check src/ --fix
+
+# Format code
+uvx ruff format src/
+
+# Check formatting
+uvx ruff format --check src/
+```
+{% elif project_type == "node-frontend" %}
+```bash
+# Lint code
+npm run lint
+
+# Auto-fix lint issues
+npm run lint:fix
+
+# Format code
+npm run format
+
+# Check formatting
+npm run format:check
+```
+{% elif project_type == "infrastructure" %}
+```bash
+# Format Terraform
+terraform fmt
+
+# Validate Terraform
+terraform validate
+
+# Lint Ansible
+ansible-lint
+```
+{% endif %}
+
+### Testing
+
+{% if project_type in ["python-cli", "python-lib"] %}
+```bash
+# Run all tests
+uv run pytest
+
+# Run with coverage
+uv run pytest --cov={{ project_name_snake }}
+
+# Run specific test
+uv run pytest tests/test_specific.py -v
+```
+{% elif project_type == "node-frontend" %}
+```bash
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+```
+{% endif %}
+
+## Project Structure
+
+{% if project_type in ["python-cli", "python-lib"] %}
+```
+{{ project_name }}/
+├── src/
+│   └── {{ project_name_snake }}/
+│       ├── __init__.py      # Package init, version
+{% if project_type == "python-cli" %}
+│       └── cli.py           # CLI entry point
+{% else %}
+│       └── core.py          # Core functionality
+{% endif %}
+├── tests/
+│   ├── __init__.py
+│   └── test_{{ project_name_snake }}.py
+├── doc/                     # Technical documentation
+├── pyproject.toml           # Project configuration
+└── README.md                # User documentation
+```
+{% elif project_type == "node-frontend" %}
+```
+{{ project_name }}/
+├── src/
+│   ├── components/          # UI components
+│   ├── main.tsx             # Entry point
+│   └── App.tsx              # Root component
+├── public/                  # Static assets
+├── doc/                     # Technical documentation
+├── package.json             # Dependencies
+├── tsconfig.json            # TypeScript config
+└── vite.config.ts           # Vite configuration
+```
+{% endif %}
+
+## Conventions
+
+### Code Style
+
+{% if project_type in ["python-cli", "python-lib"] %}
+- Follow PEP 8 (enforced by Ruff)
+- Use type hints for all function signatures
+- Docstrings for public functions (Google style)
+- Maximum line length: 88 characters
+{% elif project_type == "node-frontend" %}
+- Follow ESLint configuration
+- Use TypeScript strict mode
+- Functional components with hooks
+- CSS modules or styled-components
+{% endif %}
+
+### Commit Messages
+
+Use conventional commits:
+
+```
+<type>(<scope>): <description>
+
+[optional body]
+```
+
+Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+
+### Branch Naming
+
+- `feature/<description>` - New features
+- `fix/<description>` - Bug fixes
+- `docs/<description>` - Documentation
+- `refactor/<description>` - Code refactoring
+
+## Troubleshooting
+
+### Common Issues
+
+{% if project_type in ["python-cli", "python-lib"] %}
+**Import errors**
+```bash
+# Ensure you're using uv run
+uv run python -c "import {{ project_name_snake }}"
+```
+
+**Dependency issues**
+```bash
+# Reinstall dependencies
+uv sync --reinstall
+```
+{% elif project_type == "node-frontend" %}
+**Module not found**
+```bash
+# Clear node_modules and reinstall
+rm -rf node_modules
+npm install
+```
+
+**Build errors**
+```bash
+# Clear cache
+npm run clean
+npm run build
+```
+{% endif %}
+
+## Resources
+
+- [Project README](../README.md)
+- [Architecture](architecture.md)
+{% if project_type in ["python-cli", "python-lib"] %}
+- [Ruff Documentation](https://docs.astral.sh/ruff/)
+- [pytest Documentation](https://docs.pytest.org/)
+{% elif project_type == "node-frontend" %}
+- [Vite Documentation](https://vitejs.dev/)
+- [React Documentation](https://react.dev/)
+{% endif %}

@@ -18,6 +18,10 @@ from projinit.generator import (
     generate_project,
     init_git_repository,
 )
+from projinit.cli.check_cmd import add_check_parser, run_check
+from projinit.cli.config_cmd import add_config_parser, run_config
+from projinit.cli.init_cmd import add_init_parser, run_init
+from projinit.cli.update_cmd import add_update_parser, run_update
 from projinit.validators import validate_slug
 from projinit.version import display_version_banner
 
@@ -57,7 +61,7 @@ def parse_args() -> argparse.Namespace:
     """Parse les arguments de la ligne de commande."""
     parser = argparse.ArgumentParser(
         prog="projinit",
-        description="CLI pour générer la structure d'un projet avec configuration Terraform GitHub",
+        description="CLI pour initialiser, auditer et mettre à jour des projets selon des standards définis",
     )
     parser.add_argument(
         "-v",
@@ -77,6 +81,11 @@ def parse_args() -> argparse.Namespace:
     subparsers.add_parser(
         "version", help="Affiche les informations de version détaillées"
     )
+    subparsers.add_parser("init", help="Initialise un nouveau projet (mode interactif)")
+    add_check_parser(subparsers)
+    add_update_parser(subparsers)
+    add_init_parser(subparsers)  # projinit new (v2.0)
+    add_config_parser(subparsers)  # projinit config (v2.0)
 
     return parser.parse_args()
 
@@ -299,6 +308,27 @@ def main() -> None:
         display_version_banner()
         return
 
+    # Gérer la sous-commande check
+    if args.command == "check":
+        exit_code = run_check(args)
+        sys.exit(exit_code)
+
+    # Gérer la sous-commande update
+    if args.command == "update":
+        exit_code = run_update(args)
+        sys.exit(exit_code)
+
+    # Gérer la sous-commande new (v2.0)
+    if args.command == "new":
+        exit_code = run_init(args)
+        sys.exit(exit_code)
+
+    # Gérer la sous-commande config (v2.0)
+    if args.command == "config":
+        exit_code = run_config(args)
+        sys.exit(exit_code)
+
+    # Si init explicite ou pas de commande, lancer le mode interactif (legacy)
     # Résoudre le chemin de destination
     try:
         base_path = resolve_output_path(args.path)

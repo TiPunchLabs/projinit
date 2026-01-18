@@ -1,0 +1,70 @@
+---
+description: Quality Check
+---
+
+## Quality Check
+
+Run quality checks for {{ project_name }}.
+
+### Steps
+
+1. **Lint check**: Verify code quality and style
+2. **Format check**: Ensure consistent code formatting
+3. **Tests**: Run test suite
+
+### Execution
+
+{% if project_type == "python-cli" or project_type == "python-lib" %}
+```bash
+# Lint
+uvx ruff check src/
+
+# Format check
+uvx ruff format --check src/
+
+# Tests
+uv run pytest
+```
+{% elif project_type == "node-frontend" %}
+```bash
+# Lint
+npm run lint
+
+# Format check
+npm run format:check
+
+# Tests
+npm test
+```
+{% elif project_type == "infrastructure" %}
+```bash
+# Terraform validate
+terraform validate
+
+# Ansible lint (if applicable)
+ansible-lint
+
+# Check formatting
+terraform fmt -check
+```
+{% elif project_type == "documentation" or project_type == "lab" %}
+```bash
+# Build docs (validates structure)
+mkdocs build --strict
+
+# Lint markdown
+npx markdownlint docs/
+```
+{% else %}
+```bash
+# Add quality check commands for your project type
+```
+{% endif %}
+
+### Quality Gates
+
+Before marking a task as complete, ensure:
+- [ ] All lint checks pass
+- [ ] Code is properly formatted
+- [ ] All tests pass
+- [ ] No new warnings introduced

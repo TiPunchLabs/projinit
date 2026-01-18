@@ -1,0 +1,85 @@
+# Infrastructure project standards
+name: Infrastructure Standards
+version: "1.0"
+description: Standards for Infrastructure as Code projects (Terraform/Ansible)
+applies_to:
+  - infrastructure
+
+markers:
+  - main.tf
+  - terraform/
+  - ansible/
+  - playbook.yml
+
+checks:
+  - id: has_terraform_or_ansible
+    description: Project should have Terraform or Ansible configuration
+    level: required
+    type: any_exists
+    paths:
+      - main.tf
+      - terraform/main.tf
+      - ansible/playbook.yml
+      - playbook.yml
+
+  - id: terraform_has_versions
+    description: Terraform should have versions.tf for provider constraints
+    level: recommended
+    type: file_exists
+    path: versions.tf
+    alternatives:
+      - terraform/versions.tf
+
+  - id: terraform_has_variables
+    description: Terraform should have variables.tf
+    level: recommended
+    type: file_exists
+    path: variables.tf
+    alternatives:
+      - terraform/variables.tf
+
+  - id: terraform_has_outputs
+    description: Terraform should have outputs.tf
+    level: optional
+    type: file_exists
+    path: outputs.tf
+    alternatives:
+      - terraform/outputs.tf
+
+  - id: ansible_has_inventory
+    description: Ansible should have inventory directory
+    level: recommended
+    type: dir_exists
+    path: inventory/
+    alternatives:
+      - ansible/inventory/
+
+  - id: precommit_has_terraform_hooks
+    description: Pre-commit should include Terraform hooks
+    level: recommended
+    type: content_contains
+    path: .pre-commit-config.yaml
+    patterns:
+      - pre-commit-terraform
+      - terraform_fmt
+
+  - id: precommit_has_ansible_lint
+    description: Pre-commit should include ansible-lint
+    level: recommended
+    type: content_contains
+    path: .pre-commit-config.yaml
+    patterns:
+      - ansible-lint
+
+precommit_hooks:
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.99.0
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_validate
+      - id: terraform_tflint
+
+  - repo: https://github.com/ansible/ansible-lint
+    rev: v25.1.0
+    hooks:
+      - id: ansible-lint

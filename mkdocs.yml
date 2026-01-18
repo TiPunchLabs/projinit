@@ -1,0 +1,66 @@
+site_name: projinit - Documentation Technique
+site_description: Documentation technique du projet projinit v2.0
+site_author: Xavier Gueret
+repo_url: https://github.com/TiPunchLabs/projinit
+repo_name: TiPunchLabs/projinit
+
+theme:
+  name: material
+  language: fr
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Mode sombre
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Mode clair
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+nav:
+  - Accueil: index.md
+  - Architecture: architecture.md
+  - Standards YAML: standards.md
+  - Templates Jinja2: templates.md
+  - Detection: detection.md
+  - Commandes CLI: cli.md
+  - Configuration: configuration.md
+  - Modeles: models.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search:
+      lang: fr
