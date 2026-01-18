@@ -14,8 +14,8 @@ standards/
     ├── python.yaml     # Specifique Python CLI/Lib
     ├── node.yaml       # Specifique Node.js
     ├── infra.yaml      # Specifique Infrastructure
-    ├── documentation.yaml
-    └── lab.yaml
+    ├── documentation.yaml  # Specifique Documentation (MkDocs)
+    └── lab.yaml        # Specifique Lab/Tutorial
 ```
 
 ## Anatomie d'un Fichier Standard
@@ -250,6 +250,19 @@ def _check(project_path: Path, check: dict) -> CheckResult:
 | `has_terraform_variables` | required | variables.tf |
 | `has_ansible_playbook` | recommended | playbook.yml |
 
+### Lab/Tutorial
+
+| Check | Niveau | Description |
+|-------|--------|-------------|
+| `has_labs_or_exercises` | required | labs/, exercises/ ou modules/ |
+| `has_lab_readme` | required | README.md avec instructions |
+| `has_solutions` | recommended | solutions/, answers/ ou corrections/ |
+| `has_documentation` | recommended | mkdocs.yml ou docs/index.md |
+| `has_prerequisites` | recommended | Section prerequis dans README |
+| `has_progression` | optional | Numerotation des labs |
+| `has_assets` | optional | Dossier assets/ ou images/ |
+| `mkdocs_has_nav` | recommended | Navigation MkDocs configuree |
+
 ### Base (tous types)
 
 | Check | Niveau | Description |
@@ -259,7 +272,9 @@ def _check(project_path: Path, check: dict) -> CheckResult:
 | `has_gitignore` | required | .gitignore |
 | `has_claude_md` | recommended | CLAUDE.md |
 | `has_precommit` | recommended | .pre-commit-config.yaml |
+| `precommit_has_basic_hooks` | recommended | Hooks de base (trailing-whitespace, end-of-file-fixer) |
 | `has_claude_commands` | recommended | .claude/commands/ |
+| `has_technical_docs` | recommended | doc/ ou docs/ avec documentation technique |
 | `envrc_uses_pass` | recommended | .envrc avec pass |
 
 ## Debugging

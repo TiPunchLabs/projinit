@@ -20,69 +20,59 @@ projinit detecte automatiquement le type d'un projet existant en analysant sa st
 ### Fichier : `core/detector.py`
 
 ```python
-from dataclasses import dataclass
 from pathlib import Path
 from projinit.core.models import ProjectType, DetectionResult
 
 # Marqueurs par type de projet
 # Cle = fichier/dossier, Valeur = poids (0.0 a 1.0)
-MARKERS: dict[ProjectType, dict[str, float]] = {
+PROJECT_MARKERS: dict[ProjectType, dict[str, float]] = {
     ProjectType.PYTHON_CLI: {
         "pyproject.toml": 0.3,
+        "setup.py": 0.2,
         "src/": 0.2,
         "tests/": 0.1,
-        "cli.py": 0.3,
         "__main__.py": 0.2,
     },
     ProjectType.PYTHON_LIB: {
         "pyproject.toml": 0.3,
+        "setup.py": 0.2,
         "src/": 0.3,
         "tests/": 0.2,
-        "py.typed": 0.3,
     },
-    ProjectType.NODE_FRONTEND: {
-        "package.json": 0.4,
-        "src/": 0.2,
-        "tsconfig.json": 0.2,
-        "vite.config": 0.2,
-        "index.html": 0.1,
-    },
-    # ... autres types
+    # ... autres types (voir section Marqueurs par Type)
 }
 
-def detect(project_path: Path) -> DetectionResult:
+# Marqueurs de contenu pour affiner la detection
+DISTINGUISHING_MARKERS: dict[str, tuple[ProjectType, float]] = {
+    "[project.scripts]": (ProjectType.PYTHON_CLI, 0.3),
+    "click": (ProjectType.PYTHON_CLI, 0.1),
+    "react": (ProjectType.NODE_FRONTEND, 0.2),
+    # ... voir section Marqueurs de Distinction
+}
+
+def detect_project_type(path: Path) -> DetectionResult:
     """Detecte le type de projet."""
-    scores: dict[ProjectType, float] = {}
-    found_markers: dict[ProjectType, list[str]] = {}
+    scores: dict[ProjectType, float] = {
+        pt: 0.0 for pt in ProjectType if pt != ProjectType.UNKNOWN
+    }
+    markers_found: list[str] = []
 
-    for project_type, markers in MARKERS.items():
-        score = 0.0
-        found = []
-
+    # 1. Verifier les marqueurs fichiers/dossiers
+    for project_type, markers in PROJECT_MARKERS.items():
         for marker, weight in markers.items():
-            if _marker_exists(project_path, marker):
-                score += weight
-                found.append(marker)
+            if (path / marker).exists():
+                scores[project_type] += weight
+                markers_found.append(marker)
 
-        scores[project_type] = score
-        found_markers[project_type] = found
+    # 2. Analyser le contenu de pyproject.toml/package.json
+    # pour affiner avec DISTINGUISHING_MARKERS
 
-    # Trouver le meilleur score
-    best_type = max(scores, key=scores.get)
-    best_score = scores[best_type]
-
-    # Seuil de confiance
-    if best_score < 0.3:
-        return DetectionResult(
-            project_type=ProjectType.UNKNOWN,
-            confidence=0.0,
-            markers_found=[],
-        )
-
+    # 3. Retourner le meilleur score
+    best_type = max(scores, key=lambda x: scores[x])
     return DetectionResult(
         project_type=best_type,
-        confidence=min(best_score, 1.0),
-        markers_found=found_markers[best_type],
+        confidence=min(scores[best_type], 1.0),
+        markers_found=markers_found,
     )
 ```
 
@@ -93,21 +83,23 @@ def detect(project_path: Path) -> DetectionResult:
 | Marqueur | Poids | Description |
 |----------|-------|-------------|
 | `pyproject.toml` | 0.3 | Config Python moderne |
+| `setup.py` | 0.2 | Config legacy |
 | `src/` | 0.2 | Structure src layout |
 | `tests/` | 0.1 | Tests unitaires |
-| `cli.py` | 0.3 | Point d'entree CLI |
 | `__main__.py` | 0.2 | Execution directe |
 
-**Score max** : 1.1 (normalise a 1.0)
+**Score max** : 1.0
 
 ### Python Library
 
 | Marqueur | Poids | Description |
 |----------|-------|-------------|
 | `pyproject.toml` | 0.3 | Config Python |
+| `setup.py` | 0.2 | Config legacy |
 | `src/` | 0.3 | Structure src layout |
 | `tests/` | 0.2 | Tests unitaires |
-| `py.typed` | 0.3 | Marker PEP 561 |
+
+**Score max** : 1.0
 
 ### Node.js Frontend
 
@@ -116,26 +108,32 @@ def detect(project_path: Path) -> DetectionResult:
 | `package.json` | 0.4 | Config Node.js |
 | `src/` | 0.2 | Code source |
 | `tsconfig.json` | 0.2 | TypeScript |
-| `vite.config.*` | 0.2 | Bundler Vite |
-| `index.html` | 0.1 | Point d'entree web |
+| `vite.config.ts` | 0.1 | Bundler Vite (TS) |
+| `vite.config.js` | 0.1 | Bundler Vite (JS) |
+
+**Score max** : 1.0
 
 ### Infrastructure
 
 | Marqueur | Poids | Description |
 |----------|-------|-------------|
 | `main.tf` | 0.4 | Terraform principal |
-| `variables.tf` | 0.2 | Variables Terraform |
-| `terraform/` | 0.2 | Repertoire Terraform |
+| `terraform/` | 0.3 | Repertoire Terraform |
 | `ansible/` | 0.2 | Repertoire Ansible |
-| `playbook.yml` | 0.2 | Playbook Ansible |
+| `playbook.yml` | 0.1 | Playbook Ansible |
+| `inventory/` | 0.1 | Inventaire Ansible |
+
+**Score max** : 1.1 (normalise a 1.0)
 
 ### Documentation
 
 | Marqueur | Poids | Description |
 |----------|-------|-------------|
 | `mkdocs.yml` | 0.5 | Config MkDocs |
+| `mkdocs.yaml` | 0.5 | Config MkDocs (alt) |
 | `docs/` | 0.3 | Repertoire docs |
-| `docs/index.md` | 0.2 | Page d'accueil |
+
+**Score max** : 0.8
 
 ### Lab/Tutorial
 
@@ -147,6 +145,24 @@ def detect(project_path: Path) -> DetectionResult:
 | `answers/` | 0.3 | Repertoire reponses |
 | `mkdocs.yml` | 0.2 | Documentation |
 | `docs/` | 0.1 | Docs supplementaires |
+
+**Score max** : 1.8 (normalise a 1.0)
+
+## Marqueurs de Distinction
+
+En plus des marqueurs de fichiers, projinit analyse le contenu de `pyproject.toml` et `package.json` pour affiner la detection :
+
+| Pattern | Type detecte | Poids |
+|---------|--------------|-------|
+| `[project.scripts]` | Python CLI | 0.3 |
+| `click` | Python CLI | 0.1 |
+| `argparse` | Python CLI | 0.1 |
+| `typer` | Python CLI | 0.1 |
+| `react` | Node Frontend | 0.2 |
+| `vue` | Node Frontend | 0.2 |
+| `vite` | Node Frontend | 0.1 |
+
+Ces marqueurs permettent de distinguer un projet Python CLI d'une bibliotheque Python lorsque les fichiers de base sont similaires.
 
 ## Resultat de Detection
 

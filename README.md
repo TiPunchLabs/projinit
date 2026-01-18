@@ -11,6 +11,8 @@
 ```
 
 [![CI](https://github.com/TiPunchLabs/projinit/actions/workflows/ci.yml/badge.svg)](https://github.com/TiPunchLabs/projinit/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/TiPunchLabs/projinit?include_prereleases)](https://github.com/TiPunchLabs/projinit/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > CLI pour initialiser, auditer et mettre a jour des projets selon des standards definis.
 

@@ -17,6 +17,12 @@ templates/
 ├── mkdocs.yml.j2          # Config MkDocs
 ├── envrc.j2               # Template .envrc
 │
+├── main.tf.j2             # Terraform principal
+├── variables.tf.j2        # Variables Terraform
+├── outputs.tf.j2          # Outputs Terraform
+├── versions.tf.j2         # Versions Terraform
+├── terraform.tfvars.j2    # Variables Terraform (exemple)
+│
 ├── gitignore/             # .gitignore par technologie
 │   ├── _common.j2         # Base commune
 │   ├── python.j2
@@ -27,7 +33,17 @@ templates/
 │   ├── go.j2
 │   ├── rust.j2
 │   ├── java.j2
-│   └── ide.j2
+│   ├── ide.j2
+│   ├── react.j2
+│   ├── vue.j2
+│   ├── svelte.j2
+│   ├── nextjs.j2
+│   ├── angular.j2
+│   ├── html.j2
+│   ├── shell.j2
+│   ├── kubernetes.j2
+│   ├── pulumi.j2
+│   └── github-actions.j2
 │
 ├── precommit/             # pre-commit par technologie
 │   ├── _header.j2         # En-tete YAML
@@ -35,14 +51,25 @@ templates/
 │   ├── node.j2
 │   ├── terraform.j2
 │   ├── ansible.j2
+│   ├── docker.j2
 │   ├── go.j2
 │   ├── rust.j2
-│   └── java.j2
+│   ├── java.j2
+│   └── shell.j2
 │
-└── commands/              # Commandes Claude Code
-    ├── quality.md.j2
-    ├── commit.md.j2
-    └── lint.md.j2
+├── commands/              # Commandes Claude Code
+│   ├── quality.md.j2
+│   ├── commit.md.j2
+│   ├── lint.md.j2
+│   ├── opensource-ready.md.j2
+│   ├── sync-docs.md.j2
+│   └── sync-tech-docs.md.j2
+│
+└── doc/                   # Documentation technique
+    ├── README.md.j2
+    ├── architecture.md.j2
+    ├── configuration.md.j2
+    └── development.md.j2
 ```
 
 ## Contexte de Template
