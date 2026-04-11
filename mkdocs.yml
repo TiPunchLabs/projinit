@@ -40,6 +40,26 @@ nav:
   - Commandes CLI: cli.md
   - Configuration: configuration.md
   - Modeles: models.md
+  - Flux d'execution: flow.md
+  - Extension du projet: extending.md
+  - API Reference:
+      - Detector: api/detector.md
+      - Checker: api/checker.md
+      - Reporter: api/reporter.md
+  - Internals:
+      - Algorithme de detection: internals/detection-algorithm.md
+  - Decisions (ADR):
+      - Vue d'ensemble: adr/index.md
+      - ADR-001 argparse vs click: adr/0001-argparse-vs-click.md
+      - ADR-002 src/ layout: adr/0002-src-layout.md
+      - ADR-003 Standards YAML: adr/0003-yaml-standards.md
+      - ADR-004 Scoring detection: adr/0004-scoring-detection.md
+      - ADR-005 Templates Jinja2: adr/0005-jinja2-templates.md
+      - ADR-006 rich terminal: adr/0006-rich-terminal.md
+      - ADR-007 Hierarchie config: adr/0007-config-hierarchy.md
+      - ADR-008 direnv + pass: adr/0008-direnv-pass-secrets.md
+      - ADR-009 Niveaux de checks: adr/0009-check-levels.md
+      - ADR-010 CLI only: adr/0010-cli-only.md
 
 markdown_extensions:
   - admonition

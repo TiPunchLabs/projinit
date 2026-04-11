@@ -46,3 +46,16 @@ projinit = "projinit.main_cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/projinit"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["projinit"]
