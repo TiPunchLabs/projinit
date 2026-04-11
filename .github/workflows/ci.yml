@@ -72,10 +72,5 @@ jobs:
       - name: Install dependencies
         run: uv sync --extra dev
 
-      - name: Run tests
-        run: |
-          if [ -d "tests" ] && [ "$(find tests -name '*.py' -type f 2>/dev/null | head -1)" ]; then
-            uv run pytest tests/ -v
-          else
-            echo "No tests found, skipping pytest"
-          fi
+      - name: Run tests with coverage
+        run: uv run pytest tests/ -v --cov=projinit --cov-report=term-missing

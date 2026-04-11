@@ -5,9 +5,33 @@
       "Bash(git commit:*)",
       "Bash(tree:*)",
       "Bash(git checkout:*)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "Bash(python:*)",
+      "Bash(git rm:*)",
+      "Bash(uvx ruff check:*)",
+      "Bash(uvx ruff format:*)",
+      "Skill(quality)",
+      "Skill(quality:*)",
+      "Bash(uv sync:*)",
+      "Skill(opensource-ready)",
+      "Skill(opensource-ready:*)",
+      "Bash(ls:*)",
+      "Bash(gh run view:*)",
+      "Bash(git push)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(wc:*)",
+      "Bash(echo:*)",
+      "Bash(trash:*)",
+      "Bash(gh issue:*)",
+      "Bash(gh pr:*)",
+      "Bash(pip show:*)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright"
+  ]
 }
